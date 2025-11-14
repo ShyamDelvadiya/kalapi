@@ -36,7 +36,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.my_pg"
+        applicationId = "com.kalapi.app"
         minSdk = 23
         targetSdk = flutter.targetSdkVersion
         versionCode = 25
