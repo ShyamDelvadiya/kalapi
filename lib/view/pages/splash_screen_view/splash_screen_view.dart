@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:my_pg/view/pages/splash_screen_view/controller/splash_controller.dart';
+import 'package:kalapi/main.dart';
+import 'package:kalapi/routing/route_name.dart';
+
 // splash view
 
 class SplashScreenView extends StatefulWidget {
@@ -11,11 +13,26 @@ class SplashScreenView extends StatefulWidget {
 }
 
 class _SplashScreenViewState extends State<SplashScreenView> {
-  final SplashController controller = Get.put(SplashController());
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      handleNavigation();
+    });
+  }
+
+  Future<void> handleNavigation() async {
+    final token = pref.read("userToken");
+    print(" Splash Screen Token: $token ");
+    if (token != null && token.isNotEmpty) {
+      Get.offAllNamed(RouteName.home);
+    } else {
+      Get.offAllNamed(RouteName.login);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final splashImage = 'assets/images/lightSplashScreen.png';
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -26,15 +43,6 @@ class _SplashScreenViewState extends State<SplashScreenView> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // logo if svg present
-            if (true) ...[
-              SizedBox(
-                width: 140,
-                height: 140,
-                child: Image.asset(splashImage, fit: BoxFit.contain),
-              ),
-              const SizedBox(height: 24),
-            ],
             const CircularProgressIndicator(),
             const SizedBox(height: 12),
             Text('Farshan', style: Theme.of(context).textTheme.titleLarge),

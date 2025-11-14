@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:my_pg/utils/color_resources.dart';
-import 'package:my_pg/utils/diamension.dart';
-import 'package:my_pg/view/basewidget/textformfield/custom_text_form_field.dart';
-import 'package:my_pg/view/basewidget/custom_button/custom_button.dart';
-import 'package:my_pg/view/pages/login/controller/loginController.dart';
-import 'package:my_pg/routing/route_name.dart';
+import 'package:kalapi/routing/route_name.dart';
+import 'package:kalapi/utils/color_resources.dart';
+import 'package:kalapi/utils/diamension.dart';
+import 'package:kalapi/view/basewidget/custom_button/custom_button.dart';
+import 'package:kalapi/view/basewidget/textformfield/custom_text_form_field.dart';
+import 'package:kalapi/view/pages/login/controller/loginController.dart';
 
 // A simple email/password login form that uses LoginController
 

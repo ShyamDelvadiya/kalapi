@@ -500,7 +500,7 @@
       "languageVersion": "3.2"
     },
     {
-      "name": "my_pg",
+      "name": "kalapi",
       "rootUri": "../",
       "packageUri": "lib/",
       "languageVersion": "3.7"

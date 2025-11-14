@@ -1,8 +1,8 @@
 import 'package:get/get.dart';
-import 'package:my_pg/routing/route_name.dart';
-import 'package:my_pg/view/pages/login/view/login_view.dart';
-import 'package:my_pg/view/pages/splash_screen_view/splash_screen_view.dart';
-import 'package:my_pg/view/pages/home/home_view.dart';
+import 'package:kalapi/routing/route_name.dart';
+import 'package:kalapi/view/pages/home/home_view.dart';
+import 'package:kalapi/view/pages/login/view/login_view.dart';
+import 'package:kalapi/view/pages/splash_screen_view/splash_screen_view.dart';
 
 class Routes {
   static List<GetPage> pages = [

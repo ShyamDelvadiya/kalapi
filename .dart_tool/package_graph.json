@@ -1,11 +1,11 @@
 {
   "roots": [
-    "my_pg"
+    "kalapi"
   ],
   "packages": [
     {
-      "name": "my_pg",
-      "version": "1.0.14",
+      "name": "kalapi",
+      "version": "1.0.0",
       "dependencies": [
         "carousel_slider",
         "cupertino_icons",

@@ -7,29 +7,103 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:my_pg/utils/diamension.dart';
-// VerifyViewController import removed: file not present in this project.
-// Token refresh is handled by a local helper to avoid a hard dependency on a missing controller.
-import 'package:my_pg/routing/route_name.dart';
+import 'package:kalapi/data/Model/base_model.dart';
+import 'package:kalapi/main.dart';
+import 'package:kalapi/utils/diamension.dart';
 
-import '../data/Model/base_model.dart';
-import '../main.dart';
-
-/// to avoid callbacks to handle api requests.
 class ResponseModel {
-  late bool success;
+  /// HTTP-like code returned by your API (e.g. 200)
+  int? code;
+
+  /// Optional transaction id returned by API (taid)
+  int? taid;
+
+  /// Message returned by API
+  String? message;
+
+  /// Data payload (usually a map)
   Map<String, dynamic>? data;
+
+  /// List of errors parsed from the response
   List<Error>? error;
-  ResponseModel({required this.success, this.data, this.error});
-  ResponseModel.withSuccess(Map<String, dynamic> d) {
-    success = true;
-    data = d;
-    error = null;
+
+  ResponseModel({this.code, this.taid, this.message, this.data, this.error});
+
+  /// Convenience constructor used when the request succeeded and we have a data map
+  ResponseModel.withSuccess(
+    Map<String, dynamic> d, {
+    int? code,
+    String? message,
+    int? taid,
+  }) {
+    this.code = code ?? 200;
+    this.taid = taid;
+    this.message = message;
+    this.data = d;
+    this.error = null;
   }
-  ResponseModel.withError(List<Error> e) {
-    success = false;
-    data = null;
-    error = e;
+
+  /// Convenience constructor used when the request failed and we have errors
+  ResponseModel.withError(
+    List<Error> e, {
+    int? code,
+    String? message,
+    int? taid,
+  }) {
+    this.code = code;
+    this.taid = taid;
+    this.message = message;
+    this.data = null;
+    this.error = e;
+  }
+
+  /// Create ResponseModel from raw JSON that matches your API envelope
+  factory ResponseModel.fromJson(dynamic json) {
+    if (json == null) return ResponseModel();
+
+    final int? code =
+        json['code'] is int
+            ? json['code']
+            : (json['code'] != null
+                ? int.tryParse(json['code'].toString())
+                : null);
+    final int? taid =
+        json['taid'] is int
+            ? json['taid']
+            : (json['taid'] != null
+                ? int.tryParse(json['taid'].toString())
+                : null);
+    final String? message = json['message']?.toString();
+
+    Map<String, dynamic>? data;
+    if (json['data'] is Map<String, dynamic>) {
+      data = Map<String, dynamic>.from(json['data']);
+    }
+
+    List<Error>? errors;
+    if (json['errors'] != null && json['errors'] is List) {
+      errors = [];
+      for (var v in json['errors']) {
+        errors.add(Error.fromJson(v));
+      }
+    } else if (json['error'] != null) {
+      if (json['error'] is List) {
+        errors = [];
+        for (var v in json['error']) {
+          errors.add(Error(message: v.toString()));
+        }
+      } else if (json['error'] is String) {
+        errors = [Error(message: json['error'])];
+      }
+    }
+
+    return ResponseModel(
+      code: code,
+      taid: taid,
+      message: message,
+      data: data,
+      error: errors,
+    );
   }
 }
 
@@ -54,7 +128,23 @@ class RestRequestProvider extends GetConnect {
   }
 
   Map<String, String>? getHeader() {
-    return {'Authorization': ""};
+    // Build a common set of headers for API requests.
+    // Read token from persistent storage (`pref`) and include it as a Bearer token when available.
+    try {
+      final token = pref.read('userToken');
+      final headers = <String, String>{
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      };
+
+      if (token != null && token.toString().isNotEmpty) {
+        headers['Authorization'] = 'Bearer ${token.toString()}';
+      }
+      return headers;
+    } catch (e) {
+      // Fallback to minimal headers if pref isn't available for some reason
+      return {'Content-Type': 'application/json', 'Accept': 'application/json'};
+    }
   }
 
   // Future<ResponseModel> doGet(

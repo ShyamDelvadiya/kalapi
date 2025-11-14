@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:my_pg/api_service/api_service.dart';
+import 'package:kalapi/api_service/api_service.dart';
 
 class AppController extends GetxController with WidgetsBindingObserver {
   var selectedPgId = ''.obs;

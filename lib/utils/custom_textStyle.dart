@@ -1,9 +1,7 @@
-import 'dart:ui';
-
 import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:my_pg/utils/color_resources.dart';
-import 'package:my_pg/utils/diamension.dart';
+import 'package:kalapi/utils/color_resources.dart';
+import 'package:kalapi/utils/diamension.dart';
 
 class AppTextStyle {
   static TextStyle titleStyle(BuildContext context) => GoogleFonts.mulish(
@@ -18,5 +16,3 @@ class AppTextStyle {
     color: AppColors.subTitleColor(context),
   );
 }
-
-

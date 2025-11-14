@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:my_pg/utils/color_resources.dart';
-import 'package:my_pg/utils/diamension.dart';
+import 'package:kalapi/utils/color_resources.dart';
+import 'package:kalapi/utils/diamension.dart';
 
 class CustomTextFormField extends StatelessWidget {
   final TextEditingController? controller;

@@ -1,18 +1,14 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-// import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:my_pg/bindings/app_controller.dart';
-import 'package:my_pg/routing/route_binding.dart';
-import 'package:my_pg/routing/route_name.dart';
-import 'package:my_pg/theme_controller/theme_controller.dart';
+import 'package:kalapi/bindings/app_controller.dart';
+import 'package:kalapi/routing/route_binding.dart';
+import 'package:kalapi/routing/route_name.dart';
+import 'package:kalapi/theme_controller/theme_controller.dart';
 import 'Bindings/app_binding.dart';
 
 var pref = GetStorage();
-Timer? delaySearchTimer;
 final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
 final RouteObserver<ModalRoute<void>> routeObserver =
@@ -20,7 +16,8 @@ final RouteObserver<ModalRoute<void>> routeObserver =
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  GetStorage.init();
+  // Ensure GetStorage is fully initialized before using `pref`.
+  await GetStorage.init();
   Get.put(AppController());
   runApp(MyApp());
 }
