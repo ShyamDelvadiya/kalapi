@@ -43,10 +43,7 @@ class _LoginViewState extends State<LoginView> {
         fit: StackFit.expand,
         children: [
           // Background image
-          Image.asset(
-            'assets/images/Untitled design (1).png',
-            fit: BoxFit.cover,
-          ),
+          Image.asset('assets/images/login_bg.png', fit: BoxFit.cover),
           // subtle gradient overlay
           Container(
             decoration: BoxDecoration(
@@ -85,7 +82,7 @@ class _LoginViewState extends State<LoginView> {
     return ClipRRect(
       borderRadius: BorderRadius.circular(18),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 26),
           decoration: BoxDecoration(
@@ -113,12 +110,12 @@ class _LoginViewState extends State<LoginView> {
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.white.withOpacity(0.06),
+                          color: Colors.white,
                         ),
                         child: Image.asset(
                           'assets/images/logo 1.png',
                           width: 140,
-                          height: 60,
+                          height: 80,
                           fit: BoxFit.contain,
                         ),
                       ),
@@ -198,36 +195,6 @@ class _LoginViewState extends State<LoginView> {
                 height(h20),
 
                 // Remember + forgot row
-                Row(
-                  children: [
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Checkbox(
-                            value: _remember,
-                            onChanged:
-                                (v) => setState(() => _remember = v ?? false),
-                            activeColor: Colors.white,
-                            checkColor: Colors.black,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            'Remember me',
-                            style: TextStyle(color: Colors.white70),
-                          ),
-                        ],
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {},
-                      child: Text(
-                        'Forgot?',
-                        style: TextStyle(color: Colors.white70),
-                      ),
-                    ),
-                  ],
-                ),
-
                 height(h14),
 
                 // Login button

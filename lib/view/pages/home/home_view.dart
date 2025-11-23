@@ -21,7 +21,7 @@ class _HomeViewState extends State<HomeView> {
   initState() {
     super.initState();
     branchId = pref.read("branchId") ?? '0';
-    homeController.homeApiCall(branchId: branchId);
+    homeController.branchDetailsApiCall(branchId: branchId);
     // You can initiate API calls here if needed
   }
 
@@ -118,7 +118,7 @@ class _HomeViewState extends State<HomeView> {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          homeController.homeApiCall(branchId: branchId ?? '0');
+          homeController.branchDetailsApiCall(branchId: branchId ?? '0');
         },
         child: SingleChildScrollView(
           physics: AlwaysScrollableScrollPhysics(),

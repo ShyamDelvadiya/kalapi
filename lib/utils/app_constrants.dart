@@ -8,7 +8,9 @@ class ApiEndPoint {
   static const login = "$apiBaseUrl/User/login";
   static const home = "$apiBaseUrl/User/GetDashboardSummary";
   static const productList = "$apiBaseUrl/Product/GetProductList";
+  static const branchDetails = "$apiBaseUrl/Branch/GetBranchDetails";
   static const productDetails = "$apiBaseUrl/Product/GetProductDetails";
   static const productCategoryList =
       "$apiBaseUrl/Product/GetProductCategoryList";
+  static const checkOut = "$apiBaseUrl/Order/SaveOrder";
 }

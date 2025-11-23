@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:kalapi/data/Model/base_model.dart';
 import 'package:kalapi/main.dart';
+import 'package:kalapi/routing/route_name.dart';
 import 'package:kalapi/utils/diamension.dart';
 
 class ResponseModel {
@@ -344,6 +345,36 @@ class RestRequestProvider extends GetConnect {
     }
   }
 
+  /// Handle an expired token: clear stored auth data and navigate back to login.
+  ///
+  /// This performs a best-effort cleanup of common storage keys and then
+  /// navigates to the login route using Get. We also show a brief snackbar to
+  /// inform the user.
+  void _handleExpiredToken() {
+    try {
+      pref.remove('userToken');
+      pref.remove('refreshToken');
+      pref.remove('expiration');
+      pref.remove('isLoggedIn');
+    } catch (e) {
+      // ignore
+    }
+
+    // Notify user and navigate to login screen.
+    Future.microtask(() {
+      try {
+        rootScaffoldMessengerKey.currentState?.showSnackBar(
+          SnackBar(content: Text('Session expired. Please login again.')),
+        );
+      } catch (_) {}
+
+      // Use Get to clear navigation stack and go to login.
+      try {
+        Get.offAllNamed(RouteName.login);
+      } catch (_) {}
+    });
+  }
+
   Future<ResponseModel> doGet({
     required String endPoint,
     dynamic requestData,
@@ -367,7 +398,7 @@ class RestRequestProvider extends GetConnect {
       if (token != null) {
         if (isTokenExpired(expiration)) {
           print("🔄 Token expired. Logging out...");
-          isTokenExpired(expiration);
+          _handleExpiredToken();
           changeRequestStatus(requestStatus, RequestStatus.failed);
           return ResponseModel.withError([Error(message: "Token expired")]);
         }
@@ -497,7 +528,7 @@ class RestRequestProvider extends GetConnect {
       if (token != null) {
         if (isTokenExpired(expiration)) {
           print("🔄 Token expired. Logging out...");
-          isTokenExpired(expiration);
+          _handleExpiredToken();
           changeRequestStatus(requestStatus, RequestStatus.failed);
           return ResponseModel.withError([Error(message: "Token expired")]);
         }
@@ -625,7 +656,7 @@ class RestRequestProvider extends GetConnect {
       if (token != null) {
         if (isTokenExpired(expiration)) {
           print("🔄 Token expired. Logging out...");
-          isTokenExpired(expiration);
+          _handleExpiredToken();
           changeRequestStatus(requestStatus, RequestStatus.failed);
           return ResponseModel.withError([Error(message: "Token expired")]);
         }
@@ -756,7 +787,7 @@ class RestRequestProvider extends GetConnect {
       if (token != null) {
         if (isTokenExpired(expiration)) {
           print("🔄 Token expired. Logging out...");
-          isTokenExpired(expiration);
+          _handleExpiredToken();
           changeRequestStatus(requestStatus, RequestStatus.failed);
           return ResponseModel.withError([Error(message: "Token expired")]);
         }
@@ -882,7 +913,7 @@ class RestRequestProvider extends GetConnect {
       if (token != null) {
         if (isTokenExpired(expiration)) {
           print("🔄 Token expired. Logging out...");
-          isTokenExpired(expiration);
+          _handleExpiredToken();
           changeRequestStatus(requestStatus, RequestStatus.failed);
           return ResponseModel.withError([Error(message: "Token expired")]);
         }
@@ -1021,7 +1052,7 @@ class RestRequestProvider extends GetConnect {
       if (token != null) {
         if (isTokenExpired(expiration)) {
           print("🔄 Token expired. Logging out...");
-          isTokenExpired(expiration);
+          _handleExpiredToken();
           changeRequestStatus(requestStatus, RequestStatus.failed);
           return ResponseModel.withError([Error(message: "Token expired")]);
         }
@@ -1141,7 +1172,7 @@ class RestRequestProvider extends GetConnect {
       if (token != null) {
         if (isTokenExpired(expiration)) {
           print("🔄 Token expired. Logging out...");
-          isTokenExpired(expiration);
+          _handleExpiredToken();
           changeRequestStatus(requestStatus, RequestStatus.failed);
           return ResponseModel.withError([Error(message: "Token expired")]);
         }

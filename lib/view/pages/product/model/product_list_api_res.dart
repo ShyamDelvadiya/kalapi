@@ -32,22 +32,34 @@ class ProductList {
   String? productName;
   String? sku;
   String? hsnCode;
+  dynamic gstSlabs;
   double? cgst;
   double? sgst;
   dynamic basePrice;
   dynamic internalPrice;
+  dynamic costPrice;
+  dynamic mrp;
   String? weight;
+  int? categoryId;
+  String? category;
+  String? unit;
 
   ProductList({
     this.productId,
     this.productName,
     this.sku,
     this.hsnCode,
+    this.gstSlabs,
     this.cgst,
     this.sgst,
     this.basePrice,
     this.internalPrice,
+    this.costPrice,
+    this.mrp,
     this.weight,
+    this.categoryId,
+    this.category,
+    this.unit,
   });
 
   ProductList.fromJson(Map<String, dynamic> json) {
@@ -55,11 +67,17 @@ class ProductList {
     productName = json['productName'];
     sku = json['sku'];
     hsnCode = json['hsnCode'];
+    gstSlabs = json['gstSlabs'];
     cgst = json['cgst'];
     sgst = json['sgst'];
     basePrice = json['basePrice'];
     internalPrice = json['internalPrice'];
+    costPrice = json['costPrice'];
+    mrp = json['mrp'];
     weight = json['weight'];
+    categoryId = json['categoryId'];
+    category = json['category'];
+    unit = json['unit'];
   }
 
   Map<String, dynamic> toJson() {
@@ -68,11 +86,17 @@ class ProductList {
     data['productName'] = this.productName;
     data['sku'] = this.sku;
     data['hsnCode'] = this.hsnCode;
+    data['gstSlabs'] = this.gstSlabs;
     data['cgst'] = this.cgst;
     data['sgst'] = this.sgst;
     data['basePrice'] = this.basePrice;
     data['internalPrice'] = this.internalPrice;
+    data['costPrice'] = this.costPrice;
+    data['mrp'] = this.mrp;
     data['weight'] = this.weight;
+    data['categoryId'] = this.categoryId;
+    data['category'] = this.category;
+    data['unit'] = this.unit;
     return data;
   }
 }
