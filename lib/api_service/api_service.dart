@@ -313,18 +313,33 @@ class RestRequestProvider extends GetConnect {
   /// as NOT expired (returns false) so requests can proceed when the server
   /// doesn't return an expiration field.
   bool isTokenExpired(String? expiration) {
-    if (expiration == null || expiration.trim().isEmpty) {
-      // No expiration provided -> do not treat token as expired.
-      return false;
-    }
+    // If there's no expiration provided, assume token is not expired.
+    if (expiration == null || expiration.trim().isEmpty) return false;
+
     try {
-      final format = DateFormat("dd/MM/yyyy HH:mm:ss");
-      final expirationTime = format.parse(expiration);
-      return DateTime.now().isAfter(expirationTime);
+      // First try ISO-8601 parsing which is the most common format returned by
+      // modern backends (e.g. "2024-11-23T12:34:56Z" or without timezone).
+      final iso = DateTime.tryParse(expiration);
+      if (iso != null) {
+        return DateTime.now().isAfter(iso);
+      }
+
+      // Fallback to the legacy format some endpoints return: dd/MM/yyyy HH:mm:ss
+      try {
+        final format = DateFormat("dd/MM/yyyy HH:mm:ss");
+        final expirationTime = format.parse(expiration);
+        return DateTime.now().isAfter(expirationTime);
+      } catch (e) {
+        // If that fails, be conservative and treat token as NOT expired so
+        // users are not unexpectedly logged out due to format mismatch.
+        log(
+          "isTokenExpired: failed to parse expiration string: $expiration | $e",
+        );
+        return false;
+      }
     } catch (e) {
-      print("⛔️ Error parsing expiration: $e");
-      // On parse error, be conservative and consider token not expired so we
-      // don't log users out due to format differences coming from backend.
+      // Extremely defensive: any unexpected error -> do not treat token as expired.
+      log("isTokenExpired: unexpected error while parsing expiration: $e");
       return false;
     }
   }
