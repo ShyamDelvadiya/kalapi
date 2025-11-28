@@ -21,9 +21,6 @@ class _ProductViewState extends State<ProductView> {
   final ProductController productController = Get.put(ProductController());
   late ScrollController _scrollController;
   late TextEditingController _searchController;
-  // Track per-product quantity and whether the inline order controls are visible
-  final Map<int, int> _quantities = {};
-  final Map<int, bool> _showControls = {};
 
   @override
   void initState() {
@@ -147,71 +144,69 @@ class _ProductViewState extends State<ProductView> {
     }
   }
 
-  bool isSelectionMode = false; // Track if any item is selected
+  // Selection/quantities are stored in ProductController.cartSelected / cartQuantities
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Products'),
-        actions:
-            isSelectionMode
-                ? [
-                  TextButton(
-                    onPressed: () {
-                      // clear all selections
-                      setState(() {
-                        _showControls.clear();
-                        _quantities.clear();
-                        isSelectionMode = false;
-                      });
-                    },
-                    child: const Text(
-                      'Clear',
-                      style: TextStyle(color: Colors.black),
-                    ),
-                  ),
-                ]
-                : null,
+        actions: [
+          Obx(() {
+            final anySelected = productController.cartSelected.values.any(
+              (v) => v == true,
+            );
+            if (!anySelected) return const SizedBox.shrink();
+            return TextButton(
+              onPressed: () {
+                productController.clearCartSelection();
+              },
+              child: const Text('Clear', style: TextStyle(color: Colors.black)),
+            );
+          }),
+        ],
       ),
-      floatingActionButton:
-          isSelectionMode
-              ? FloatingActionButton.extended(
-                onPressed: () {
-                  final selectedItems =
-                      _showControls.entries.where((e) => e.value == true).map((
-                        e,
-                      ) {
-                        final id = e.key;
-                        final product = productController.items.firstWhere(
-                          (p) => p.productId == id,
-                        );
+      floatingActionButton: Obx(() {
+        final anySelected = productController.cartSelected.values.any(
+          (v) => v == true,
+        );
+        if (!anySelected) return const SizedBox.shrink();
 
-                        return {
-                          "productId": product.productId,
-                          "productName": product.productName,
-                          "weight": product.weight,
-                          "price": product.basePrice,
-                          "quantity": _quantities[id] ?? 1,
-                        };
-                      }).toList();
+        final selectedItems =
+            productController.cartSelected.entries
+                .where((e) => e.value == true)
+                .map((e) {
+                  final id = e.key;
+                  final product = productController.items.firstWhere(
+                    (p) => p.productId == id,
+                    // orElse:
+                    //     () =>
+                    //         productController.items.isNotEmpty
+                    //             ? productController.items[0]
+                    //             : null,
+                  );
+                  return {
+                    "productId": id,
+                    "productName": product?.productName,
+                    "weight": product?.weight,
+                    "price": product?.basePrice,
+                    "quantity": productController.cartQuantities[id] ?? 1,
+                  };
+                })
+                .toList();
 
-                  Get.to(() => CartCheckoutView(orderItems: selectedItems));
-                },
-
-                label: Text(
-                  "Proceed",
-                  style: GoogleFonts.mulish(
-                    color: AppColors.whiteColor(context),
-                  ),
-                ),
-                icon: Icon(
-                  Icons.arrow_forward,
-                  color: AppColors.whiteColor(context),
-                ),
-                backgroundColor: Colors.deepOrange,
-              )
-              : null,
+        return FloatingActionButton.extended(
+          onPressed: () {
+            Get.to(() => CartCheckoutView(orderItems: selectedItems));
+          },
+          label: Text(
+            "Proceed",
+            style: GoogleFonts.mulish(color: AppColors.whiteColor(context)),
+          ),
+          icon: Icon(Icons.arrow_forward, color: AppColors.whiteColor(context)),
+          backgroundColor: Colors.deepOrange,
+        );
+      }),
 
       body: Padding(
         padding: const EdgeInsets.all(12.0),
@@ -329,17 +324,13 @@ class _ProductViewState extends State<ProductView> {
 
                         return GestureDetector(
                           onTap: () {
-                            if (isSelectionMode) {
-                              setState(() {
-                                final currently = _showControls[id] ?? false;
-                                _showControls[id] = !currently;
-                                if (!_quantities.containsKey(id)) {
-                                  _quantities[id] = 1;
-                                }
-                                isSelectionMode = _showControls.containsValue(
-                                  true,
-                                );
-                              });
+                            final anySelected = productController
+                                .cartSelected
+                                .values
+                                .any((v) => v == true);
+                            if (anySelected) {
+                              // toggle selection via controller
+                              productController.toggleCartSelection(id);
                               return;
                             }
 
@@ -351,16 +342,8 @@ class _ProductViewState extends State<ProductView> {
                             );
                           },
                           onLongPress: () {
-                            setState(() {
-                              final currently = _showControls[id] ?? false;
-                              _showControls[id] = !currently;
-
-                              if (!_quantities.containsKey(id)) {
-                                _quantities[id] = 1;
-                              }
-
-                              isSelectionMode = true;
-                            });
+                            // enter selection mode and toggle
+                            productController.toggleCartSelection(id);
                           },
                           child: Container(
                             decoration: BoxDecoration(
@@ -384,21 +367,19 @@ class _ProductViewState extends State<ProductView> {
                             ),
                             child: Row(
                               children: [
-                                if (isSelectionMode)
-                                  GestureDetector(
+                                Obx(() {
+                                  final anySelected = productController
+                                      .cartSelected
+                                      .values
+                                      .any((v) => v == true);
+                                  if (!anySelected)
+                                    return const SizedBox.shrink();
+                                  final sel =
+                                      productController.cartSelected[id] ??
+                                      false;
+                                  return GestureDetector(
                                     onTap: () {
-                                      setState(() {
-                                        final currently =
-                                            _showControls[id] ?? false;
-                                        _showControls[id] = !currently;
-
-                                        if (!_quantities.containsKey(id)) {
-                                          _quantities[id] = 1;
-                                        }
-
-                                        isSelectionMode = _showControls
-                                            .containsValue(true);
-                                      });
+                                      productController.toggleCartSelection(id);
                                     },
                                     child: Container(
                                       margin: const EdgeInsets.only(right: 12),
@@ -411,12 +392,12 @@ class _ProductViewState extends State<ProductView> {
                                           width: 2,
                                         ),
                                         color:
-                                            (_showControls[id] ?? false)
+                                            sel
                                                 ? Colors.white
                                                 : Colors.transparent,
                                       ),
                                       child:
-                                          (_showControls[id] ?? false)
+                                          sel
                                               ? const Icon(
                                                 Icons.check,
                                                 size: 16,
@@ -424,7 +405,8 @@ class _ProductViewState extends State<ProductView> {
                                               )
                                               : null,
                                     ),
-                                  ),
+                                  );
+                                }),
 
                                 CircleAvatar(
                                   radius: 26,
@@ -479,59 +461,72 @@ class _ProductViewState extends State<ProductView> {
                                   ),
                                 ),
                                 const SizedBox(width: 8),
-                                // If controls are visible for this item, show +/- buttons and count
-                                Builder(
-                                  builder: (ctx) {
-                                    final showing = _showControls[id] ?? false;
-                                    final qty = _quantities[id] ?? 0;
-                                    if (showing) {
-                                      return QuantityButton(
-                                        quantity: _quantities[id] ?? 1,
-                                        onIncrement: () {
-                                          setState(() {
-                                            _quantities[id] =
-                                                (_quantities[id] ?? 1) + 1;
-                                          });
-                                        },
-                                        onDecrement: () {
-                                          setState(() {
-                                            final current =
-                                                _quantities[id] ?? 1;
-                                            _quantities[id] =
-                                                current > 1 ? current - 1 : 1;
-                                          });
-                                        },
-                                        bgColor: Colors.white24,
-                                        iconColor: Colors.white,
-                                        textColor: Colors.white,
-                                      );
-                                    }
-
-                                    // default: price + chevron
-                                    return Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      children: [
-                                        Text(
-                                          '₹${item.basePrice ?? 0}',
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.titleSmall?.copyWith(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 6),
-                                        Icon(
-                                          Icons.chevron_right,
-                                          color: Colors.white70,
-                                        ),
-                                      ],
+                                // If this product is selected show +/- buttons bound to the controller
+                                Obx(() {
+                                  final selected =
+                                      productController.cartSelected[id] ??
+                                      false;
+                                  final qty =
+                                      productController.cartQuantities[id] ?? 0;
+                                  if (selected) {
+                                    return QuantityButton(
+                                      quantity: qty == 0 ? 1 : qty,
+                                      onIncrement: () {
+                                        final newQty =
+                                            (productController
+                                                    .cartQuantities[id] ??
+                                                0) +
+                                            1;
+                                        productController.setCartQuantity(
+                                          id,
+                                          newQty,
+                                        );
+                                      },
+                                      onDecrement: () {
+                                        final cur =
+                                            productController
+                                                .cartQuantities[id] ??
+                                            1;
+                                        if (cur > 1) {
+                                          productController.setCartQuantity(
+                                            id,
+                                            cur - 1,
+                                          );
+                                        } else {
+                                          productController.setCartQuantity(
+                                            id,
+                                            0,
+                                          );
+                                        }
+                                      },
+                                      bgColor: Colors.white24,
+                                      iconColor: Colors.white,
+                                      textColor: Colors.white,
                                     );
-                                  },
-                                ),
+                                  }
+
+                                  // default: price + chevron
+                                  return Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text(
+                                        '₹${item.basePrice ?? 0}',
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.titleSmall?.copyWith(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Icon(
+                                        Icons.chevron_right,
+                                        color: Colors.white70,
+                                      ),
+                                    ],
+                                  );
+                                }),
                               ],
                             ),
                           ),

@@ -419,19 +419,41 @@ class RestRequestProvider extends GetConnect {
 
       if (response.isOk) {
         print("response.isOkk");
-        var baseResponse = BaseResponse.fromJson(response.body);
+        // Normalize the response body: some endpoints return a List at top-level.
+        dynamic responseBody;
+        try {
+          responseBody =
+              response.body is Map ? response.body : json.decode(response.body);
+        } catch (_) {
+          responseBody = response.body;
+        }
+
+        var baseResponse = BaseResponse.fromJson(responseBody);
 
         if (response.statusCode == 200) {
-          onSuccess(response.body);
+          // Ensure we always pass a Map to callers (many callers expect a Map).
+          Map<String, dynamic> payload;
+          if (responseBody is Map<String, dynamic>) {
+            payload = Map<String, dynamic>.from(responseBody);
+          } else if (responseBody is List) {
+            payload = {'data': responseBody};
+          } else {
+            payload = {'data': responseBody};
+          }
+
+          onSuccess(payload);
           log("Api header=> ${headers}");
-          log("success.request:${response.body}");
+          log("success.request:${responseBody}");
           changeRequestStatus(requestStatus, RequestStatus.success);
-          return ResponseModel.withSuccess(response.body);
+          return ResponseModel.withSuccess(payload);
         } else {
           String errorMessage =
-              response.body['detail'] ??
-              response.body['message'] ??
-              'Unknown error';
+              (responseBody is Map &&
+                      (responseBody['detail'] ?? responseBody['message']) !=
+                          null)
+                  ? (responseBody['detail'] ?? responseBody['message'])
+                      .toString()
+                  : 'Unknown error';
 
           List<Error> errors =
               baseResponse.error ??
@@ -561,6 +583,8 @@ class RestRequestProvider extends GetConnect {
         responseBody =
             response.body is Map ? response.body : json.decode(response.body);
       } catch (_) {
+        // If decode fails, try to use response.body directly. It might already
+        // be decoded by GetConnect (Map/List) or be a raw string.
         responseBody = response.body;
       }
 
@@ -568,9 +592,20 @@ class RestRequestProvider extends GetConnect {
       if (response.isOk &&
           (response.statusCode == 200 || response.statusCode == 201)) {
         log("✅ success.response: $responseBody");
-        onSuccess(responseBody);
+
+        // Normalize similar to GET: ensure callers receive a Map when possible
+        Map<String, dynamic> payload;
+        if (responseBody is Map<String, dynamic>) {
+          payload = Map<String, dynamic>.from(responseBody);
+        } else if (responseBody is List) {
+          payload = {'data': responseBody};
+        } else {
+          payload = {'data': responseBody};
+        }
+
+        onSuccess(payload);
         changeRequestStatus(requestStatus, RequestStatus.success);
-        return ResponseModel.withSuccess(responseBody);
+        return ResponseModel.withSuccess(payload);
       } else {
         String errorMessage = "Unknown error";
         BaseResponse baseResponse = BaseResponse.fromJson(responseBody);

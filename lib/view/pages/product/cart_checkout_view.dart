@@ -200,7 +200,7 @@ class _CartCheckoutViewState extends State<CartCheckoutView> {
                             items[i]['quantity'] as int,
                           );
                           setState(() {});
-                          await _fetchTotalFromApi();
+                          // await _fetchTotalFromApi();
                         },
                         onDecrement: () async {
                           final cur = items[i]['quantity'] as int? ?? 1;
@@ -227,7 +227,7 @@ class _CartCheckoutViewState extends State<CartCheckoutView> {
                             return;
                           }
 
-                          await _fetchTotalFromApi();
+                          // await _fetchTotalFromApi();
                         },
                         bgColor: Colors.grey.shade200,
                         iconColor: Colors.black,

@@ -57,9 +57,19 @@ class HomeController extends GetxController {
         onSuccess: (responseData) async {
           // notify caller
           requestStatus.value = RequestStatus.success;
-          branchDetailsResponseModel.value = BranchDetailsApiRes.fromJson(
-            responseData,
-          );
+          // Some APIs return a list with a single object. Handle both Map and List responses.
+          dynamic json = responseData;
+          if (responseData is List && responseData.isNotEmpty) {
+            json = responseData[0];
+          }
+          if (json is Map<String, dynamic>) {
+            branchDetailsResponseModel.value = BranchDetailsApiRes.fromJson(
+              json,
+            );
+          } else {
+            // Unexpected shape — try to guard against common cases
+            branchDetailsResponseModel.value = BranchDetailsApiRes();
+          }
           log('---- branch details -- ${branchDetailsResponseModel.value}');
           homeApiCall(branchId: branchId);
         },
