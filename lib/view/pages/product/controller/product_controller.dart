@@ -1,11 +1,15 @@
+import 'dart:async';
 import 'dart:developer';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kalapi/api_service/api_service.dart';
+import 'package:kalapi/main.dart';
 import 'package:kalapi/utils/app_constrants.dart';
+import 'package:kalapi/view/pages/home/home_view.dart';
 import 'package:kalapi/view/pages/product/model/checkout_api_res.dart';
-import 'package:kalapi/view/pages/product/model/product_list_api_res.dart';
 import 'package:kalapi/view/pages/product/model/product_category_res.dart';
+import 'package:kalapi/view/pages/product/model/product_list_api_res.dart';
 
 class ProductController extends GetxController {
   RxBool isLoading = false.obs;
@@ -22,9 +26,21 @@ class ProductController extends GetxController {
   final Rx<CheckOutApiRes> checkOutResponses = CheckOutApiRes().obs;
   final RxnInt selectedCategoryId = RxnInt();
   final RxString searchQuery = ''.obs;
+
   // Cart / selection shared state so different screens can read/write quantities
   final RxMap<int, int> cartQuantities = <int, int>{}.obs;
   final RxMap<int, bool> cartSelected = <int, bool>{}.obs;
+
+  // Reactive calculation properties
+  final RxDouble subtotal = 0.0.obs;
+  final RxDouble discount = 0.0.obs;
+  final RxDouble apiTotal = 0.0.obs;
+  final RxBool isCalculatingTotal = false.obs;
+  final RxBool isPlacingOrder = false.obs;
+
+  // Debounce timer for API calls
+  // Note: We no longer auto-call the checkout API from product screen.
+  // Debounced API calls were removed so totals are calculated only at checkout.
 
   /// Set quantity for a product in the shared cart state. If qty <= 0 the product is removed.
   void setCartQuantity(int productId, int qty) {
@@ -38,6 +54,9 @@ class ProductController extends GetxController {
     }
     cartQuantities.refresh();
     cartSelected.refresh();
+
+    // Trigger calculation update (local only). API total will be fetched at checkout.
+    calculateLocalSubtotal();
   }
 
   /// Toggle whether a product is selected for checkout
@@ -51,6 +70,9 @@ class ProductController extends GetxController {
     }
     cartSelected.refresh();
     cartQuantities.refresh();
+
+    // Trigger calculation update (local only). API total will be fetched at checkout.
+    calculateLocalSubtotal();
   }
 
   void clearCartSelection() {
@@ -58,6 +80,11 @@ class ProductController extends GetxController {
     cartQuantities.clear();
     cartSelected.refresh();
     cartQuantities.refresh();
+
+    // Reset calculations
+    subtotal.value = 0.0;
+    apiTotal.value = 0.0;
+    discount.value = 0.0;
   }
 
   /// Build order items payload from current selection
@@ -208,5 +235,111 @@ class ProductController extends GetxController {
     } catch (e) {
       log("Product API call failed: $e");
     } finally {}
+  }
+
+  /// Calculate local subtotal from cart items
+  void calculateLocalSubtotal() {
+    double total = 0.0;
+
+    for (final entry in cartSelected.entries) {
+      if (entry.value == true) {
+        final productId = entry.key;
+        final quantity = cartQuantities[productId] ?? 0;
+
+        // Find product in items list
+        final product = items.firstWhereOrNull((p) => p.productId == productId);
+        if (product != null) {
+          final price = product.basePrice?.toDouble() ?? 0.0;
+          total += price * quantity;
+        }
+      }
+    }
+
+    subtotal.value = total;
+  }
+
+  /// Get cart items with full product details
+  List<Map<String, dynamic>> getCartItemsWithDetails() {
+    final List<Map<String, dynamic>> cartItems = [];
+
+    for (final entry in cartSelected.entries) {
+      if (entry.value == true) {
+        final productId = entry.key;
+        final quantity = cartQuantities[productId] ?? 0;
+
+        // Find product in items list
+        final product = items.firstWhereOrNull((p) => p.productId == productId);
+        if (product != null) {
+          cartItems.add({
+            'productId': productId,
+            'productName': product.productName,
+            'weight': product.weight,
+            'price': product.basePrice,
+            'quantity': quantity,
+          });
+        }
+      }
+    }
+
+    return cartItems;
+  }
+
+  /// Fetch total from API
+  Future<void> fetchTotalFromApi() async {
+    if (cartSelected.values.every((v) => v == false)) {
+      apiTotal.value = 0.0;
+      return;
+    }
+
+    isCalculatingTotal.value = true;
+
+    try {
+      final branchId = pref.read("branchId") ?? 0;
+
+      final body = {
+        "orderId": null,
+        "branchId": branchId,
+        "orderDate": null,
+        "orderDetails": getSelectedOrderItems(),
+      };
+
+      await checkOutApiCall(
+        body: body,
+        onSuccess: () async {
+          apiTotal.value =
+              checkOutResponses.value.totalAmount?.toDouble() ?? 0.0;
+          discount.value = checkOutResponses.value.discount?.toDouble() ?? 0.0;
+          isPlacingOrder.value = true;
+
+          // Simulate order placement
+          await Future.delayed(const Duration(milliseconds: 800));
+
+          isPlacingOrder.value = false;
+
+          // Clear cart after successful order
+          clearCartSelection();
+
+          Get.offAll(HomeView());
+
+          Get.snackbar(
+            'Success',
+            'Order placed successfully!',
+            backgroundColor: Colors.green,
+            colorText: Colors.white,
+            snackPosition: SnackPosition.BOTTOM,
+          );
+        },
+      );
+    } catch (e) {
+      log('Error fetching total from API: $e');
+    } finally {
+      isCalculatingTotal.value = false;
+    }
+  }
+
+  @override
+  void onClose() {
+    // No timers to cancel; totals are fetched at checkout.
+    super.onClose();
   }
 }

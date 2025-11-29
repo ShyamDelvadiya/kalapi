@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:kalapi/utils/safe_google_fonts.dart';
 import 'package:kalapi/utils/color_resources.dart';
 import 'package:kalapi/utils/diamension.dart';
 
@@ -91,10 +91,9 @@ class CustomTextFormField extends StatelessWidget {
             onChanged: onChanged,
             style:
                 textStyle ??
-                GoogleFonts.mulish(
+                SafeGoogleFonts.mulish(
                   fontSize: Dimension.fontSize16,
                   color: AppColors.titleColor(context),
-                  height: 20.8 / Dimension.fontSize16,
                   fontWeight: FontWeight.w500,
                 ),
             obscureText: obscureText,
@@ -121,10 +120,9 @@ class CustomTextFormField extends StatelessWidget {
                 decoration ??
                 InputDecoration(
                   prefixText: prefixText,
-                  prefixStyle: GoogleFonts.mulish(
+                  prefixStyle: SafeGoogleFonts.mulish(
                     fontSize: Dimension.fontSize16,
                     color: AppColors.titleColor(context),
-                    height: 20.8 / Dimension.fontSize16,
                     fontWeight: FontWeight.w500,
                   ),
                   border: InputBorder.none,
@@ -144,17 +142,16 @@ class CustomTextFormField extends StatelessWidget {
                   suffixIcon: suffixImage,
                   prefixIcon: prefixImage,
                   hintText: hintText ?? '',
-                  errorStyle: GoogleFonts.mulish(
+                  errorStyle: SafeGoogleFonts.mulish(
                     color: AppColors.redColor(context),
                     fontSize: Dimension.fontSize12,
                     fontWeight: FontWeight.w400,
                   ),
                   hintStyle:
                       hintstyle ??
-                      GoogleFonts.mulish(
+                      SafeGoogleFonts.mulish(
                         fontSize: Dimension.fontSize16,
                         color: AppColors.titleColor(context).withOpacity(0.5),
-                        height: 16 / Dimension.fontSize16,
                         fontWeight: FontWeight.w500,
                       ),
                   focusedBorder:

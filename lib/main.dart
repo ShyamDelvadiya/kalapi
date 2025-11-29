@@ -17,6 +17,7 @@ final RouteObserver<ModalRoute<void>> routeObserver =
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Ensure GetStorage is fully initialized before using `pref`.
+  // SafeGoogleFonts performs lazy detection; do not probe AssetManifest here.
   await GetStorage.init();
   Get.put(AppController());
   runApp(MyApp());

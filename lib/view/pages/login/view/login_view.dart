@@ -1,15 +1,14 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:ui';
 import 'package:kalapi/routing/route_name.dart';
-// import 'package:kalapi/utils/color_resources.dart';
+import 'package:kalapi/utils/color_resources.dart';
 import 'package:kalapi/utils/diamension.dart';
 import 'package:kalapi/view/basewidget/custom_button/custom_button.dart';
 import 'package:kalapi/view/basewidget/textformfield/custom_text_form_field.dart';
 import 'package:kalapi/view/pages/login/controller/loginController.dart';
-
-// A simple email/password login form that uses LoginController
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -25,7 +24,6 @@ class _LoginViewState extends State<LoginView> {
   final _formKey = GlobalKey<FormState>();
 
   bool _obscure = true;
-  bool _remember = false;
 
   @override
   void dispose() {
@@ -36,21 +34,27 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   Widget build(BuildContext context) {
-    // final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
         children: [
           // Background image
-          Image.asset('assets/images/login_bg.png', fit: BoxFit.cover),
-          // subtle gradient overlay
+          Image.asset(
+            'assets/images/login_bg.png',
+            fit: BoxFit.cover,
+            color: Colors.black.withOpacity(
+              0.3,
+            ), // Darken slightly for text contrast
+            colorBlendMode: BlendMode.darken,
+          ),
+
+          // Gradient overlay for warmth
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Colors.black.withOpacity(0.45),
-                  Colors.black.withOpacity(0.15),
+                  AppColors.primaryColorStudent(context).withOpacity(0.3),
+                  Colors.black.withOpacity(0.6),
                 ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
@@ -66,7 +70,7 @@ class _LoginViewState extends State<LoginView> {
                   vertical: 12,
                 ),
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 520),
+                  constraints: const BoxConstraints(maxWidth: 400),
                   child: _buildCard(context),
                 ),
               ),
@@ -78,22 +82,24 @@ class _LoginViewState extends State<LoginView> {
   }
 
   Widget _buildCard(BuildContext context) {
-    // final colorScheme = Theme.of(context).colorScheme;
     return ClipRRect(
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(24),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 26),
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 32),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.08),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.white.withOpacity(0.10)),
+            color: AppColors.whiteColor(context).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: AppColors.whiteColor(context).withOpacity(0.2),
+              width: 1.5,
+            ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.20),
-                blurRadius: 24,
-                offset: const Offset(0, 10),
+                color: Colors.black.withOpacity(0.25),
+                blurRadius: 30,
+                offset: const Offset(0, 15),
               ),
             ],
           ),
@@ -102,125 +108,164 @@ class _LoginViewState extends State<LoginView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // header with logo
+                // Logo Section
                 Center(
                   child: Column(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(8),
+                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.white,
+                          color: AppColors.whiteColor(context),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primaryColorStudent(
+                                context,
+                              ).withOpacity(0.3),
+                              blurRadius: 20,
+                              spreadRadius: 5,
+                            ),
+                          ],
                         ),
                         child: Image.asset(
                           'assets/images/logo 1.png',
-                          width: 140,
-                          height: 80,
+                          width: 100,
+                          height: 100,
                           fit: BoxFit.contain,
                         ),
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 20),
                       Text(
                         'Kalapi Farsan',
-                        style: GoogleFonts.mulish(
-                          fontSize: 20,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
+                        style: GoogleFonts.outfit(
+                          // Changed to Outfit for premium look
+                          fontSize: 28,
+                          color: AppColors.whiteColor(context),
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       Text(
-                        'Trusted name for quality',
-                        style: GoogleFonts.mulish(
-                          fontSize: 12,
-                          color: Colors.white70,
+                        'Taste the Tradition',
+                        style: GoogleFonts.outfit(
+                          fontSize: 14,
+                          color: AppColors.whiteColor(context).withOpacity(0.8),
+                          letterSpacing: 0.5,
                         ),
                       ),
                     ],
                   ),
                 ),
 
-                height(h20),
-                // Email
+                height(h30),
+
+                // Email Field
                 CustomTextFormField(
                   controller: _emailCtrl,
-                  hintText: 'Email',
+                  hintText: 'Email Address',
                   textInputType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
-                  prefixImage: const Icon(
-                    Icons.alternate_email_rounded,
-                    color: Colors.white70,
+                  prefixImage: Icon(
+                    Icons.email_outlined,
+                    color: AppColors.whiteColor(context).withOpacity(0.7),
                   ),
-                  fillColor: Colors.white.withOpacity(0.06),
-                  hintstyle: GoogleFonts.mulish(
+                  fillColor: AppColors.whiteColor(context).withOpacity(0.1),
+                  hintstyle: GoogleFonts.outfit(
+                    fontSize: 15,
+                    color: AppColors.whiteColor(context).withOpacity(0.6),
+                  ),
+                  textStyle: GoogleFonts.outfit(
+                    color: AppColors.whiteColor(context),
                     fontSize: 16,
-                    color: Colors.white60,
                   ),
-                  textStyle: const TextStyle(color: Colors.white),
                   validator: (v) {
-                    if (v == null || v.trim().isEmpty) return 'Enter email';
+                    if (v == null || v.trim().isEmpty)
+                      return 'Please enter your email';
+                    if (!GetUtils.isEmail(v)) return 'Invalid email address';
                     return null;
                   },
                 ),
 
-                height(h14),
+                height(h16),
 
-                // Password
+                // Password Field
                 CustomTextFormField(
                   controller: _passCtrl,
                   hintText: 'Password',
                   obscureText: _obscure,
-                  prefixImage: const Icon(
+                  prefixImage: Icon(
                     Icons.lock_outline_rounded,
-                    color: Colors.white70,
+                    color: AppColors.whiteColor(context).withOpacity(0.7),
                   ),
                   suffixImage: IconButton(
                     onPressed: () => setState(() => _obscure = !_obscure),
                     icon: Icon(
                       _obscure
-                          ? Icons.visibility_rounded
-                          : Icons.visibility_off_rounded,
-                      color: Colors.white70,
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                      color: AppColors.whiteColor(context).withOpacity(0.7),
                     ),
                   ),
-                  fillColor: Colors.white.withOpacity(0.06),
-                  hintstyle: GoogleFonts.mulish(
-                    fontSize: 16,
-                    color: Colors.white60,
+                  fillColor: AppColors.whiteColor(context).withOpacity(0.1),
+                  hintstyle: GoogleFonts.outfit(
+                    fontSize: 15,
+                    color: AppColors.whiteColor(context).withOpacity(0.6),
                   ),
-                  textStyle: const TextStyle(color: Colors.white),
+                  textStyle: GoogleFonts.outfit(
+                    color: AppColors.whiteColor(context),
+                    fontSize: 16,
+                  ),
                   validator:
-                      (v) => (v == null || v.isEmpty) ? 'Enter password' : null,
+                      (v) =>
+                          (v == null || v.isEmpty)
+                              ? 'Please enter your password'
+                              : null,
                 ),
-                height(h20),
 
-                // Remember + forgot row
-                height(h14),
+                height(h30),
 
-                // Login button
+                // Login Button
                 Obx(() {
                   final loading = controller.isLoading.value;
-                  return CustomButton(
-                    height: 52,
-                    text: 'Sign in',
-                    isLoading: loading,
-                    onPressed: () {
-                      if (_formKey.currentState?.validate() ?? false) {
-                        controller.loginApiCall(
-                          email: _emailCtrl.text.trim(),
-                          password: _passCtrl.text,
-                          onSuccess: () => Get.offAllNamed(RouteName.home),
-                        );
-                      }
-                    },
-                    borderRadius: BorderRadius.circular(14),
+                  return Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primaryColorStudent(
+                            context,
+                          ).withOpacity(0.4),
+                          blurRadius: 15,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: CustomButton(
+                      height: 56,
+                      text: 'Sign In',
+                      isLoading: loading,
+                      textcolor: Colors.white,
+                      fontsize: 18,
+                      color: AppColors.primaryColorStudent(context),
+                      onPressed: () {
+                        if (_formKey.currentState?.validate() ?? false) {
+                          controller.loginApiCall(
+                            email: _emailCtrl.text.trim(),
+                            password: _passCtrl.text,
+                            onSuccess: () => Get.offAllNamed(RouteName.home),
+                          );
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                   );
                 }),
               ],
-            ), // Column
-          ), // Form
-        ), // Container
-      ), // BackdropFilter
-    ); // ClipRRect
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

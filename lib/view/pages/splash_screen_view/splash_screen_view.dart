@@ -1,7 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:async';
 import 'package:kalapi/main.dart';
 import 'package:kalapi/routing/route_name.dart';
 
@@ -22,8 +23,8 @@ class _SplashScreenViewState extends State<SplashScreenView> {
     // Start small entrance animation then navigate.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() => _logoVisible = true);
-      // keep splash visible for 1800ms then navigate
-      Future.delayed(const Duration(milliseconds: 1800), handleNavigation);
+      // keep splash visible for 2000ms then navigate
+      Future.delayed(const Duration(milliseconds: 2000), handleNavigation);
     });
   }
 
@@ -43,9 +44,27 @@ class _SplashScreenViewState extends State<SplashScreenView> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Background image with subtle dark overlay
-          Image.asset('assets/images/Untitled design.png', fit: BoxFit.cover),
-          Container(color: Colors.black.withOpacity(0.38)),
+          // Background image with warm overlay
+          Image.asset(
+            'assets/images/Untitled design.png',
+            fit: BoxFit.cover,
+            color: Colors.black.withOpacity(0.4),
+            colorBlendMode: BlendMode.darken,
+          ),
+
+          // Warm gradient overlay
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  const Color(0xFFFF6F00).withOpacity(0.4), // Amber 900
+                  Colors.black.withOpacity(0.7),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+          ),
 
           // Center card with logo and loader
           SafeArea(
@@ -59,58 +78,89 @@ class _SplashScreenViewState extends State<SplashScreenView> {
                     children: [
                       AnimatedOpacity(
                         opacity: _logoVisible ? 1.0 : 0.0,
-                        duration: const Duration(milliseconds: 600),
-                        curve: Curves.easeOut,
-                        child: Container(
-                          padding: const EdgeInsets.all(18),
+                        duration: const Duration(milliseconds: 800),
+                        curve: Curves.easeOutBack,
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 800),
+                          curve: Curves.easeOutBack,
+                          transform: Matrix4.translationValues(
+                            0,
+                            _logoVisible ? 0 : 50,
+                            0,
+                          ),
+                          padding: const EdgeInsets.all(24),
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
-                              colors: [Color(0xFF6A11CB), Color(0xFF2575FC)],
+                              colors: [
+                                Color(0xFFD84315),
+                                Color(0xFFFF6F00),
+                              ], // Deep Orange to Amber
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.28),
-                                blurRadius: 20,
-                                offset: Offset(0, 10),
+                                color: Colors.black.withOpacity(0.3),
+                                blurRadius: 25,
+                                offset: const Offset(0, 15),
                               ),
                             ],
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.15),
+                              width: 1.5,
+                            ),
                           ),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Image.asset(
-                                'assets/images/logo.png',
-                                width: 180,
-                                height: 90,
-                                fit: BoxFit.contain,
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.1),
+                                      blurRadius: 10,
+                                    ),
+                                  ],
+                                ),
+                                child: Image.asset(
+                                  'assets/images/logo 1.png',
+                                  width: 120,
+                                  height: 120,
+                                  fit: BoxFit.contain,
+                                ),
                               ),
-                              const SizedBox(height: 10),
+                              const SizedBox(height: 20),
                               Text(
                                 'Kalapi Farsan',
-                                style: GoogleFonts.mulish(
+                                style: GoogleFonts.outfit(
                                   color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: 0.4,
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1.2,
                                 ),
                               ),
-                              const SizedBox(height: 6),
+                              const SizedBox(height: 8),
                               Text(
-                                'Trusted name for quality',
-                                style: GoogleFonts.mulish(
-                                  color: Colors.white70,
-                                  fontSize: 12,
+                                'Taste the Tradition',
+                                style: GoogleFonts.outfit(
+                                  color: Colors.white.withOpacity(0.9),
+                                  fontSize: 14,
+                                  letterSpacing: 0.5,
                                 ),
                               ),
-                              const SizedBox(height: 14),
+                              const SizedBox(height: 24),
                               const SizedBox(
-                                width: 48,
-                                height: 48,
+                                width: 40,
+                                height: 40,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 3,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
                                 ),
                               ),
                             ],

@@ -22,6 +22,7 @@
         "loading_animation_widget",
         "path_provider",
         "permission_handler",
+        "shimmer",
         "url_launcher"
       ],
       "devDependencies": [
@@ -52,6 +53,13 @@
         "stream_channel",
         "test_api",
         "vector_math"
+      ]
+    },
+    {
+      "name": "shimmer",
+      "version": "3.0.0",
+      "dependencies": [
+        "flutter"
       ]
     },
     {
@@ -178,7 +186,7 @@
     },
     {
       "name": "google_fonts",
-      "version": "6.2.1",
+      "version": "6.3.2",
       "dependencies": [
         "crypto",
         "flutter",
@@ -600,6 +608,17 @@
       ]
     },
     {
+      "name": "leak_tracker",
+      "version": "11.0.2",
+      "dependencies": [
+        "clock",
+        "collection",
+        "meta",
+        "path",
+        "vm_service"
+      ]
+    },
+    {
       "name": "term_glyph",
       "version": "1.2.2",
       "dependencies": []
@@ -697,28 +716,17 @@
       "dependencies": []
     },
     {
+      "name": "vm_service",
+      "version": "15.0.0",
+      "dependencies": []
+    },
+    {
       "name": "petitparser",
       "version": "6.1.0",
       "dependencies": [
         "collection",
         "meta"
       ]
-    },
-    {
-      "name": "leak_tracker",
-      "version": "11.0.2",
-      "dependencies": [
-        "clock",
-        "collection",
-        "meta",
-        "path",
-        "vm_service"
-      ]
-    },
-    {
-      "name": "vm_service",
-      "version": "15.0.0",
-      "dependencies": []
     }
   ],
   "configVersion": 1

@@ -3,57 +3,53 @@ import 'package:flutter/material.dart';
 class AppColors {
   static Color titleColor(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFFF0EFFF)
-          : const Color(0xFF263238);
-
-  // static Color subTitleColor(BuildContext context) => Theme.of(context).brightness == Brightness.dark
-  //     ? const Color(0xFFF9FDFF)
-  //     : const Color(0xFF263238).withOpacity(0.5);
+          ? const Color(0xFFFFF8E1) // Warm white
+          : const Color(0xFF3E2723); // Dark brown
 
   static Color subTitleColor(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFFF9FDFF).withOpacity(0.50)
-          : const Color(0xFF263238).withOpacity(0.50);
+          ? const Color(0xFFFFECB3).withOpacity(0.7)
+          : const Color(0xFF5D4037).withOpacity(0.7); // Brownish grey
 
   static Color subTitleWithOutOpeColor(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFFF9FDFF)
-          : const Color(0xFF263238);
+          ? const Color(0xFFFFECB3)
+          : const Color(0xFF5D4037);
 
   static Color primaryColorStudent(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFF0780D3)
-          : const Color(0xFF0396FB);
+          ? const Color(0xFFFF6F00) // Amber/Orange
+          : const Color(0xFFFF8F00);
 
   static Color primaryColorOwner(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFF01A5AA)
-          : const Color(0xFF01A5AA);
+          ? const Color(0xFFD84315) // Deep Orange
+          : const Color(0xFFBF360C);
 
   static Color borderColor(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFFF0EFFF)
-          : const Color(0xFF263238);
+          ? const Color(0xFF5D4037)
+          : const Color(0xFFD7CCC8);
 
   static Color unselectBoxBorder(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFFF9FDFF).withOpacity(0.04)
-          : const Color(0xFFE6E6E6);
+          ? const Color(0xFFFFF8E1).withOpacity(0.1)
+          : const Color(0xFFEFEBE9);
 
   static Color backGroundColor(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFF001624)
-          : const Color(0xFFFFFFFF);
+          ? const Color(0xFF210A00) // Very dark brown
+          : const Color(0xFFFFF8E1); // Creamy white
 
   static Color pgOwnerColor(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFFF3804D)
-          : const Color(0xFFF9E724);
+          ? const Color(0xFFFFAB91)
+          : const Color(0xFFFFCCBC);
 
   static Color studentColor(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFFF3CC4D)
-          : const Color(0xFF18E25B);
+          ? const Color(0xFFFFD54F)
+          : const Color(0xFFFFE082);
 
   static Color whiteColor(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
@@ -62,8 +58,8 @@ class AppColors {
 
   static Color studentCard(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFF0A1F2D)
-          : const Color(0xFFFFFFFF).withOpacity(0.52);
+          ? const Color(0xFF3E2723)
+          : const Color(0xFFFFFFFF);
 
   static Color blackColor(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
@@ -73,226 +69,226 @@ class AppColors {
   static Color blackWhiteColor(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
           ? const Color(0xFFFFFFFF)
-          : const Color(0xFF000000);
+          : const Color(0xFF3E2723);
 
   static Color otpBorderColor(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFF01A5AA)
-          : const Color(0xFF01A5AA);
+          ? const Color(0xFFFF6F00)
+          : const Color(0xFFFF8F00);
 
   static Color starColor(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFFB3261E)
-          : const Color(0xFFB3261E);
+          ? const Color(0xFFD32F2F)
+          : const Color(0xFFC62828);
 
   static Color fillColor(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFF001C2C)
-          : const Color.fromRGBO(38, 50, 56, 0.05);
+          ? const Color(0xFF3E2723)
+          : const Color(0xFFFFF3E0);
 
   static Color boxGradiant(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFF042E48)
-          : const Color(0xFFF3F3F3);
+          ? const Color(0xFF4E342E)
+          : const Color(0xFFFFF8E1);
 
   static Color boxGradiant2(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFF001522)
-          : const Color(0xFFEEEEEE);
+          ? const Color(0xFF3E2723)
+          : const Color(0xFFFFECB3);
 
   static Color redColor(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFFB00101)
-          : const Color(0xFFB00101);
+          ? const Color(0xFFB71C1C)
+          : const Color(0xFFC62828);
 
   static Color rentDueBackGround(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFF002339)
-          : const Color(0xFFFAFFFB);
+          ? const Color(0xFF3E2723)
+          : const Color(0xFFFFEBEE);
 
   static Color greenColor(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFF1B9039)
-          : const Color(0xFF1B9039);
+          ? const Color(0xFF2E7D32)
+          : const Color(0xFF388E3D);
 
   static Color cardBackGround(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFFDEFEFF)
-          : const Color(0xFFDEFEFF);
+          ? const Color(0xFF3E2723)
+          : const Color(0xFFFFF8E1);
 
   static Color cardColor(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFF0A1F2D)
-          : const Color(0xFF263238).withOpacity(0.55);
+          ? const Color(0xFF3E2723)
+          : const Color(0xFFFFFFFF);
 
   static Color sameCard(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFF0A1F2D).withOpacity(0.40)
-          : const Color(0xFFFFFFFF).withOpacity(0.55);
+          ? const Color(0xFF4E342E)
+          : const Color(0xFFFFF3E0);
 
   static Color incomeColor(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFF388E3D)
-          : const Color(0xFF388E3D);
+          ? const Color(0xFF43A047)
+          : const Color(0xFF2E7D32);
 
   static Color monthBackground(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFFDBEBEC)
-          : const Color(0xFFDBEBEC);
+          ? const Color(0xFF4E342E)
+          : const Color(0xFFFFECB3);
 
   static Color umColor(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFFCCCCCC)
-          : const Color(0xFFCCCCCC);
+          ? const Color(0xFFBCAAA4)
+          : const Color(0xFF8D6E63);
 
   static Color dashBoardBackground1(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFF002C2D)
-          : const Color(0xFF0570B9);
+          ? const Color(0xFFBF360C)
+          : const Color(0xFFFF6F00);
 
   static Color dashBoardBackground2(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFF003C66)
-          : const Color(0xFF19A144);
+          ? const Color(0xFFE65100)
+          : const Color(0xFFFF8F00);
 
   static Color dashBoardSheet(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFF00080D)
-          : const Color(0xFFFBFFFF);
+          ? const Color(0xFF210A00)
+          : const Color(0xFFFFF8E1);
 
   static Color studentBackGround(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFF00080D)
-          : const Color(0xFFFFFFFF);
+          ? const Color(0xFF210A00)
+          : const Color(0xFFFFF3E0);
 
   static Color dashBoardText(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFFF9FDFF)
-          : const Color(0xFF263238).withOpacity(0.80);
+          ? const Color(0xFFFFECB3)
+          : const Color(0xFF3E2723);
 
   static Color dashBoardCard1(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFF001F33)
-          : const Color(0xFFEDFCF2);
+          ? const Color(0xFF3E2723)
+          : const Color(0xFFFFF3E0);
 
   static Color dashBoardCard2(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFF001F33)
-          : const Color(0xFFFEF6EE);
+          ? const Color(0xFF3E2723)
+          : const Color(0xFFFFE0B2);
 
   static Color dashBoardCard3(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFF001F33)
-          : const Color(0xFFFEF3F2);
+          ? const Color(0xFF3E2723)
+          : const Color(0xFFFFCCBC);
 
   static Color dashBoardCard4(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFF001F33)
-          : const Color(0xFFF5F2FE);
+          ? const Color(0xFF3E2723)
+          : const Color(0xFFFFAB91);
 
   static Color dividerColor(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFFEDFCF2)
-          : const Color(0xFFF2F4F7);
+          ? const Color(0xFF5D4037)
+          : const Color(0xFFD7CCC8);
 
   static Color pgBorderColor1(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFFF2F4F7).withOpacity(0.20)
-          : const Color(0xFFF2F4F7);
+          ? const Color(0xFF5D4037).withOpacity(0.20)
+          : const Color(0xFFD7CCC8);
 
   static Color pgBorderColor2(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFFF2F4F7).withOpacity(0.20)
-          : const Color(0xFFF2F4F7);
+          ? const Color(0xFF5D4037).withOpacity(0.20)
+          : const Color(0xFFD7CCC8);
 
   static Color bottomColor(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFF001F33)
+          ? const Color(0xFF210A00)
           : const Color(0xFFFFFFFF);
 
   static Color notificationCard1(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFF272260)
-          : const Color(0xFF6ABCF4);
+          ? const Color(0xFFBF360C)
+          : const Color(0xFFFF6F00);
 
   static Color notificationCard2(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFF3D1561)
-          : const Color(0xFF48C871);
+          ? const Color(0xFFE65100)
+          : const Color(0xFFFF8F00);
 
   static Color dashBoardBackground1ForStudent(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFF114B73)
-          : const Color(0xFF0570B9);
+          ? const Color(0xFFBF360C)
+          : const Color(0xFFFF6F00);
 
   static Color dashBoardBackground2ForStudent(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFF083B19)
-          : const Color(0xFF19A144);
+          ? const Color(0xFFE65100)
+          : const Color(0xFFFF8F00);
 
   static Color searchBackground(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFFE9E9E9).withOpacity(0.09)
-          : const Color(0xFFFFFFFF);
+          ? const Color(0xFF3E2723).withOpacity(0.3)
+          : const Color(0xFFFFF3E0);
 
   static Color categoryBackground(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFFFFFFFF).withOpacity(0.02)
-          : const Color(0xFFF0F9FF);
+          ? const Color(0xFF3E2723).withOpacity(0.2)
+          : const Color(0xFFFFF8E1);
 
   static Color gradiantBorder(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color.fromRGBO(0, 15, 26, 1)
-          : const Color.fromRGBO(50, 143, 207, 1);
+          ? const Color(0xFF3E2723)
+          : const Color(0xFFFF6F00);
 
   static Color gradiantBorder2(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color.fromRGBO(0, 63, 67, 0.68)
-          : const Color.fromRGBO(17, 177, 189, 0.68);
+          ? const Color(0xFF4E342E)
+          : const Color(0xFFFF8F00);
 
   static Color gradiantBorder3(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color.fromRGBO(233, 137, 76, 0)
-          : const Color.fromRGBO(115, 53, 15, 0);
+          ? const Color(0xFF5D4037)
+          : const Color(0xFFFFB74D);
 
   static Color titleColorDetails(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFFF0EFFF).withOpacity(0.7)
-          : const Color(0xFF263238);
+          ? const Color(0xFFFFECB3)
+          : const Color(0xFF3E2723);
 
-  // Meal colors for attendance - Subtle version
+  // Meal colors for attendance - Warm food colors
   static Color breakfastColor(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFF90A4AE) // Saddle brown - more muted
-          : const Color(0xFF546E7A);
+          ? const Color(0xFFFFB74D) // Orange
+          : const Color(0xFFFF9800);
 
   static Color breakfastColorLight(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFFA0522D) // Sienna - slightly lighter
-          : const Color(0xFFA0522D);
+          ? const Color(0xFFFFCC80)
+          : const Color(0xFFFFB74D);
 
   static Color lunchColor(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFF4682B4) // Steel blue - more professional
-          : const Color(0xFF4682B4);
+          ? const Color(0xFFFF7043) // Deep Orange
+          : const Color(0xFFFF5722);
 
   static Color lunchColorLight(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFF5F9EA0) // Cadet blue - muted
-          : const Color(0xFF5F9EA0);
+          ? const Color(0xFFFF8A65)
+          : const Color(0xFFFF7043);
 
   static Color dinnerColor(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFF663323) // Rebecca purple - less bright
-          : const Color(0xFF663355);
+          ? const Color(0xFF8D6E63) // Brown
+          : const Color(0xFF795548);
 
   static Color dinnerColorLight(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFF7B68EE) // Medium slate blue
-          : const Color(0xFF7B68EE);
+          ? const Color(0xFFA1887F)
+          : const Color(0xFF8D6E63);
 
   static Color dashBoardBorder(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFFEFFEFF).withOpacity(0.05)
-          : const Color(0xFFADFFF1).withOpacity(0.20);
+          ? const Color(0xFFFFF8E1).withOpacity(0.05)
+          : const Color(0xFF3E2723).withOpacity(0.10);
 }
