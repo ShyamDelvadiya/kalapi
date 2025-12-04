@@ -11,7 +11,7 @@ import 'package:kalapi/view/pages/product/product_view.dart';
 import 'package:shimmer/shimmer.dart';
 
 class HomeView extends StatefulWidget {
-  const HomeView({super.key});
+  const   HomeView({super.key});
 
   @override
   State<HomeView> createState() => _HomeViewState();

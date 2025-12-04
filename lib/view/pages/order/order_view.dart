@@ -5,7 +5,8 @@ import 'package:intl/intl.dart';
 import 'package:kalapi/main.dart';
 import 'package:kalapi/utils/color_resources.dart';
 import 'package:kalapi/view/pages/order/controller/order_controller.dart';
-import 'package:kalapi/view/pages/order/model/order_list_api_res.dart';
+import 'package:kalapi/view/pages/order/model/order_list_api_res.dart'
+    as order_list;
 import 'package:kalapi/view/pages/order/order_detail_view.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -75,198 +76,337 @@ class _OrderViewState extends State<OrderView> {
     );
   }
 
-  Widget _buildOrderCard(BuildContext context, OrderData? order) {
+  Widget _buildOrderCard(BuildContext context, order_list.OrderData? order) {
     final orderDate = orderController.parseDate(order?.orderDate);
     final formattedDate =
         orderDate != null
             ? DateFormat('dd MMM yyyy, hh:mm a').format(orderDate)
             : '-';
 
-    // Determine status color
+    // Determine status color based on orderStatus
     Color statusColor;
-    switch (order?.status?.toLowerCase()) {
+    switch (order?.orderStatus?.toLowerCase()) {
       case 'completed':
-        statusColor = Colors.green;
+        statusColor = const Color(0xFF10B981);
         break;
       case 'pending':
-        statusColor = Colors.orange;
+        statusColor = const Color(0xFFF59E0B);
         break;
       case 'cancelled':
-        statusColor = Colors.red;
+        statusColor = const Color(0xFFEF4444);
+        break;
+      case 'inprogress':
+        statusColor = const Color(0xFF3B82F6);
         break;
       default:
-        statusColor = Colors.blue;
+        statusColor = const Color(0xFF6B7280);
     }
+
+    // Calculate paid amount
+    final totalAmount = order?.orderTotalAmount?.toDouble() ?? 0.0;
+    final remainingAmount = order?.remainingAmount?.toDouble() ?? 0.0;
+    final paidAmount = totalAmount - remainingAmount;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        gradient: LinearGradient(
-          colors: [
-            AppColors.primaryColorStudent(context),
-            AppColors.primaryColorOwner(context),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryColorStudent(context).withOpacity(0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           onTap: () {
             // Navigate to order details screen
-            if (order?.orderId != null) {
-              Get.to(() => OrderDetailView(orderId: order?.orderId ?? 0));
+            if (order?.orderID != null) {
+              Get.to(() => OrderDetailView(orderId: order?.orderID ?? 0));
             }
           },
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header Row
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header with gradient
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      AppColors.primaryColorStudent(context),
+                      AppColors.primaryColorOwner(context),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            order?.orderNumber ?? '-',
-                            style: GoogleFonts.outfit(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                order?.orderNumber ?? '-',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.access_time_rounded,
+                                    size: 14,
+                                    color: Colors.white.withOpacity(0.9),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    formattedDate,
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 13,
+                                      color: Colors.white.withOpacity(0.9),
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            formattedDate,
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Text(
+                            order?.orderStatus ?? '-',
                             style: GoogleFonts.outfit(
                               fontSize: 12,
-                              color: Colors.white.withOpacity(0.8),
+                              fontWeight: FontWeight.w700,
+                              color: statusColor,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              // Body content
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Branch Info
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryColorStudent(
+                          context,
+                        ).withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: AppColors.primaryColorStudent(
+                            context,
+                          ).withOpacity(0.1),
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryColorStudent(
+                                context,
+                              ).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Icon(
+                              Icons.store_rounded,
+                              color: AppColors.primaryColorStudent(context),
+                              size: 22,
+                            ),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Branch',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 11,
+                                    color: Colors.grey.shade600,
+                                    fontWeight: FontWeight.w500,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  order?.branchName ?? 'Unknown Branch',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.grey.shade900,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: statusColor,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        order?.status ?? '-',
-                        style: GoogleFonts.outfit(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
-                // Customer Info
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.person_outline,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              order?.customerName ?? 'Unknown Customer',
-                              style: GoogleFonts.outfit(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
-                            if (order?.customerPhone != null)
-                              Text(
-                                order?.customerPhone ?? '',
-                                style: GoogleFonts.outfit(
-                                  fontSize: 12,
-                                  color: Colors.white.withOpacity(0.8),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                // Amount Row
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
+                    // Amount Details
                     Row(
                       children: [
-                        Icon(
-                          Icons.shopping_bag_outlined,
-                          color: Colors.white.withOpacity(0.8),
-                          size: 18,
+                        Expanded(
+                          child: _buildAmountCard(
+                            context,
+                            'Total Amount',
+                            totalAmount,
+                            Icons.receipt_long_rounded,
+                            AppColors.primaryColorStudent(context),
+                          ),
                         ),
-                        const SizedBox(width: 6),
-                        Text(
-                          '${order?.orderItems?.length ?? 0} items',
-                          style: GoogleFonts.outfit(
-                            fontSize: 13,
-                            color: Colors.white.withOpacity(0.9),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _buildAmountCard(
+                            context,
+                            'Paid',
+                            paidAmount,
+                            Icons.check_circle_rounded,
+                            const Color(0xFF10B981),
                           ),
                         ),
                       ],
                     ),
-                    Text(
-                      '₹${order?.finalAmount?.toStringAsFixed(2) ?? '0.00'}',
-                      style: GoogleFonts.outfit(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+
+                    if (remainingAmount > 0) ...[
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFEF3C7),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: const Color(0xFFF59E0B).withOpacity(0.3),
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.warning_amber_rounded,
+                              color: const Color(0xFFF59E0B),
+                              size: 20,
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              'Remaining: ',
+                              style: GoogleFonts.outfit(
+                                fontSize: 13,
+                                color: const Color(0xFF92400E),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            Text(
+                              '₹${remainingAmount.toStringAsFixed(2)}',
+                              style: GoogleFonts.outfit(
+                                fontSize: 15,
+                                color: const Color(0xFF92400E),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildAmountCard(
+    BuildContext context,
+    String label,
+    double amount,
+    IconData icon,
+    Color color,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.2), width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 16, color: color),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: GoogleFonts.outfit(
+                  fontSize: 11,
+                  color: Colors.grey.shade600,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '₹${amount.toStringAsFixed(2)}',
+            style: GoogleFonts.outfit(
+              fontSize: 17,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ],
       ),
     );
   }

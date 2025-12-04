@@ -1,25 +1,28 @@
 class OrderListApiRes {
   int? code;
   String? message;
+  int? totalRecords;
   List<OrderData>? data;
 
-  OrderListApiRes({this.code, this.message, this.data});
+  OrderListApiRes({this.code, this.message, this.totalRecords, this.data});
 
   OrderListApiRes.fromJson(Map<String, dynamic> json) {
     code = json['code'];
     message = json['message'];
+    totalRecords = json['totalRecords'];
     if (json['data'] != null) {
       data = <OrderData>[];
       json['data'].forEach((v) {
-        data!.add(OrderData.fromJson(v));
+        data!.add(new OrderData.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['code'] = code;
-    data['message'] = message;
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['code'] = this.code;
+    data['message'] = this.message;
+    data['totalRecords'] = this.totalRecords;
     if (this.data != null) {
       data['data'] = this.data!.map((v) => v.toJson()).toList();
     }
@@ -28,124 +31,51 @@ class OrderListApiRes {
 }
 
 class OrderData {
-  int? orderId;
+  int? orderID;
   String? orderNumber;
-  int? branchId;
-  String? branchName;
-  String? customerName;
-  String? customerPhone;
   String? orderDate;
-  double? totalAmount;
-  double? discount;
-  double? finalAmount;
-  String? status;
-  String? paymentStatus;
-  String? deliveryAddress;
-  String? remarks;
-  List<OrderItem>? orderItems;
+  int? branchID;
+  String? branchName;
+  int? orderTotalAmount;
+  int? remainingAmount;
+  int? orderStatusId;
+  String? orderStatus;
 
   OrderData({
-    this.orderId,
+    this.orderID,
     this.orderNumber,
-    this.branchId,
-    this.branchName,
-    this.customerName,
-    this.customerPhone,
     this.orderDate,
-    this.totalAmount,
-    this.discount,
-    this.finalAmount,
-    this.status,
-    this.paymentStatus,
-    this.deliveryAddress,
-    this.remarks,
-    this.orderItems,
+    this.branchID,
+    this.branchName,
+    this.orderTotalAmount,
+    this.remainingAmount,
+    this.orderStatusId,
+    this.orderStatus,
   });
 
   OrderData.fromJson(Map<String, dynamic> json) {
-    orderId = json['orderId'];
+    orderID = json['orderID'];
     orderNumber = json['orderNumber'];
-    branchId = json['branchId'];
-    branchName = json['branchName'];
-    customerName = json['customerName'];
-    customerPhone = json['customerPhone'];
     orderDate = json['orderDate'];
-    totalAmount = json['totalAmount']?.toDouble();
-    discount = json['discount']?.toDouble();
-    finalAmount = json['finalAmount']?.toDouble();
-    status = json['status'];
-    paymentStatus = json['paymentStatus'];
-    deliveryAddress = json['deliveryAddress'];
-    remarks = json['remarks'];
-    if (json['orderItems'] != null) {
-      orderItems = <OrderItem>[];
-      json['orderItems'].forEach((v) {
-        orderItems!.add(OrderItem.fromJson(v));
-      });
-    }
+    branchID = json['branchID'];
+    branchName = json['branchName'];
+    orderTotalAmount = json['orderTotalAmount'];
+    remainingAmount = json['remainingAmount'];
+    orderStatusId = json['orderStatusId'];
+    orderStatus = json['orderStatus'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['orderId'] = orderId;
-    data['orderNumber'] = orderNumber;
-    data['branchId'] = branchId;
-    data['branchName'] = branchName;
-    data['customerName'] = customerName;
-    data['customerPhone'] = customerPhone;
-    data['orderDate'] = orderDate;
-    data['totalAmount'] = totalAmount;
-    data['discount'] = discount;
-    data['finalAmount'] = finalAmount;
-    data['status'] = status;
-    data['paymentStatus'] = paymentStatus;
-    data['deliveryAddress'] = deliveryAddress;
-    data['remarks'] = remarks;
-    if (orderItems != null) {
-      data['orderItems'] = orderItems!.map((v) => v.toJson()).toList();
-    }
-    return data;
-  }
-}
-
-class OrderItem {
-  int? orderItemId;
-  int? productId;
-  String? productName;
-  String? weight;
-  int? quantity;
-  double? price;
-  double? totalPrice;
-
-  OrderItem({
-    this.orderItemId,
-    this.productId,
-    this.productName,
-    this.weight,
-    this.quantity,
-    this.price,
-    this.totalPrice,
-  });
-
-  OrderItem.fromJson(Map<String, dynamic> json) {
-    orderItemId = json['orderItemId'];
-    productId = json['productId'];
-    productName = json['productName'];
-    weight = json['weight'];
-    quantity = json['quantity'];
-    price = json['price']?.toDouble();
-    totalPrice = json['totalPrice']?.toDouble();
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['orderItemId'] = orderItemId;
-    data['productId'] = productId;
-    data['productName'] = productName;
-    data['weight'] = weight;
-    data['quantity'] = quantity;
-    data['price'] = price;
-    data['totalPrice'] = totalPrice;
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['orderID'] = this.orderID;
+    data['orderNumber'] = this.orderNumber;
+    data['orderDate'] = this.orderDate;
+    data['branchID'] = this.branchID;
+    data['branchName'] = this.branchName;
+    data['orderTotalAmount'] = this.orderTotalAmount;
+    data['remainingAmount'] = this.remainingAmount;
+    data['orderStatusId'] = this.orderStatusId;
+    data['orderStatus'] = this.orderStatus;
     return data;
   }
 }
