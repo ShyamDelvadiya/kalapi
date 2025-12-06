@@ -596,26 +596,34 @@ class _ProductViewState extends State<ProductView> {
                                   );
                                 }
 
-                                return Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Text(
-                                      '₹${item.basePrice ?? 0}',
-                                      style: GoogleFonts.outfit(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
+                                return Obx(() {
+                                  final price =
+                                      isInternalBranch.value
+                                          ? (item.internalPrice ??
+                                              item.basePrice ??
+                                              0)
+                                          : (item.basePrice ?? 0);
+                                  return Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text(
+                                        '₹$price',
+                                        style: GoogleFonts.outfit(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    const Icon(
-                                      Icons.arrow_forward_ios_rounded,
-                                      color: Colors.white54,
-                                      size: 14,
-                                    ),
-                                  ],
-                                );
+                                      const SizedBox(height: 4),
+                                      const Icon(
+                                        Icons.arrow_forward_ios_rounded,
+                                        color: Colors.white54,
+                                        size: 14,
+                                      ),
+                                    ],
+                                  );
+                                });
                               }),
                             ],
                           ),

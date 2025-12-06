@@ -8,13 +8,14 @@ import 'package:kalapi/view/pages/order/model/order_list_api_res.dart';
 
 class OrderController extends GetxController {
   RxBool isLoading = false.obs;
+  RxBool isLoadingMore = false.obs;
   RxBool isLoadingDetails = false.obs;
   RestRequestProvider apiService = RestRequestProvider();
   final Rx<RequestStatus> requestStatus = RequestStatus.none.obs;
   final RxList<OrderData> orders = <OrderData>[].obs;
 
   // Order details
-  final Rx<OrderDetailsData?> orderDetails = Rx<OrderDetailsData?>(null);
+  final RxList<OrderDetailsData> orderDetails = <OrderDetailsData>[].obs;
 
   // Date range filters
   final Rx<DateTime?> startDate = Rx<DateTime?>(null);
@@ -22,6 +23,22 @@ class OrderController extends GetxController {
 
   // Branch ID (can be set from user's branch or selected branch)
   final RxInt branchId = 0.obs;
+
+  // Pagination and filtering
+  final RxInt pageNumber = 1.obs;
+  final RxInt pageSize = 10.obs;
+  final RxBool hasMore = true.obs;
+  final RxInt orderStatusId = 0.obs; // 0 for all, or specific ID
+
+  // Order Statuses from DB
+  final List<Map<String, dynamic>> orderStatuses = [
+    {'id': 0, 'name': 'All'},
+    {'id': 1, 'name': 'In Progress'},
+    {'id': 2, 'name': 'Ready To Deliver'},
+    {'id': 3, 'name': 'Delivered'},
+    {'id': 4, 'name': 'Payment Pending'},
+    {'id': 5, 'name': 'Complete'},
+  ];
 
   @override
   void onInit() {
@@ -37,20 +54,31 @@ class OrderController extends GetxController {
     DateTime? start,
     DateTime? end,
     int? branch,
+    int? statusId,
+    int page = 1,
     Function()? onSuccess,
   }) async {
-    isLoading.value = true;
+    if (page == 1) {
+      isLoading.value = true;
+      hasMore.value = true;
+    } else {
+      isLoadingMore.value = true;
+    }
 
     try {
       // Use provided dates or fall back to stored dates
       final startDateStr = _formatDate(start ?? startDate.value);
       final endDateStr = _formatDate(end ?? endDate.value);
       final branchIdValue = branch ?? branchId.value;
+      final statusIdValue = statusId ?? orderStatusId.value;
 
       final Map<String, dynamic> requestBody = {
         'startDate': startDateStr,
         'endDate': endDateStr,
         'branchId': branchIdValue,
+        'OrderStatusId': statusIdValue,
+        'pageNumber': page,
+        'pageSize': pageSize.value,
       };
 
       log('📤 Fetching orders with: $requestBody');
@@ -68,12 +96,25 @@ class OrderController extends GetxController {
             Map<String, dynamic>.from(responseData),
           );
 
-          orders.clear();
-          if (resp.data != null) {
-            orders.addAll(resp.data!);
+          final List<OrderData> newOrders = resp.data ?? [];
+
+          if (page == 1) {
+            orders.clear();
+            orders.addAll(newOrders);
+          } else {
+            orders.addAll(newOrders);
           }
 
-          log('✅ Fetched ${orders.length} orders');
+          pageNumber.value = page;
+
+          // Check if we have more data
+          if (newOrders.length < pageSize.value) {
+            hasMore.value = false;
+          } else {
+            hasMore.value = true;
+          }
+
+          log('✅ Fetched ${newOrders.length} orders (Total: ${orders.length})');
 
           try {
             if (onSuccess != null) onSuccess();
@@ -94,6 +135,7 @@ class OrderController extends GetxController {
       log("❌ Order API call failed: $e");
     } finally {
       isLoading.value = false;
+      isLoadingMore.value = false;
     }
   }
 
@@ -101,18 +143,36 @@ class OrderController extends GetxController {
   void setDateRange(DateTime start, DateTime end) {
     startDate.value = start;
     endDate.value = end;
-    getOrderListApiCall();
+    pageNumber.value = 1;
+    getOrderListApiCall(page: 1);
   }
 
   /// Set branch ID and refresh orders
   void setBranchId(int id) {
     branchId.value = id;
-    getOrderListApiCall();
+    pageNumber.value = 1;
+    getOrderListApiCall(page: 1);
+  }
+
+  /// Set order status and refresh orders
+  void setOrderStatus(int id) {
+    orderStatusId.value = id;
+    pageNumber.value = 1;
+    isLoading.value = true;
+    getOrderListApiCall(page: 1);
   }
 
   /// Refresh orders with current filters
   Future<void> refreshOrders() async {
-    await getOrderListApiCall();
+    pageNumber.value = 1;
+    await getOrderListApiCall(page: 1);
+  }
+
+  /// Load next page of orders
+  Future<void> loadMoreOrders() async {
+    if (!isLoading.value && !isLoadingMore.value && hasMore.value) {
+      await getOrderListApiCall(page: pageNumber.value + 1);
+    }
   }
 
   /// Format DateTime to yyyy-MM-dd string
@@ -127,7 +187,7 @@ class OrderController extends GetxController {
     Function()? onSuccess,
   }) async {
     isLoadingDetails.value = true;
-    orderDetails.value = null;
+    orderDetails.clear();
 
     try {
       log('📤 Fetching order details for orderId: $orderId');
@@ -145,9 +205,11 @@ class OrderController extends GetxController {
             Map<String, dynamic>.from(responseData),
           );
 
-          orderDetails.value = resp.data;
+          if (resp.data != null) {
+            orderDetails.addAll(resp.data!);
+          }
 
-          log('✅ Fetched order details: ${resp.data?.orderNumber}');
+          log('✅ Fetched ${orderDetails.length} order items');
 
           try {
             if (onSuccess != null) onSuccess();

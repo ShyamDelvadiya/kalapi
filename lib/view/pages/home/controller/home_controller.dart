@@ -29,11 +29,6 @@ class HomeController extends GetxController {
           // notify caller
           requestStatus.value = RequestStatus.success;
           dashboardResponseModel.value = DashboardApiRes.fromJson(responseData);
-          try {
-            if (onSuccess != null) onSuccess();
-          } catch (e) {
-            log("onSuccess callback error: $e");
-          }
         },
         onError: (errors, statusCode) {},
         onConnectionError: (errors) {},
@@ -70,6 +65,8 @@ class HomeController extends GetxController {
             // Unexpected shape — try to guard against common cases
             branchDetailsResponseModel.value = BranchDetailsApiRes();
           }
+          isInternalBranch.value =
+              branchDetailsResponseModel.value.isInternalBranch ?? false;
           log('---- branch details -- ${branchDetailsResponseModel.value}');
           homeApiCall(branchId: branchId);
         },

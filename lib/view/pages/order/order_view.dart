@@ -19,6 +19,7 @@ class OrderView extends StatefulWidget {
 
 class _OrderViewState extends State<OrderView> {
   final OrderController orderController = Get.put(OrderController());
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -30,6 +31,23 @@ class _OrderViewState extends State<OrderView> {
     }
     // Fetch initial orders
     orderController.getOrderListApiCall();
+
+    // Add scroll listener for pagination
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    orderController.pageNumber.value = 1;
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      orderController.loadMoreOrders();
+    }
   }
 
   Future<void> _selectDateRange() async {
@@ -87,6 +105,7 @@ class _OrderViewState extends State<OrderView> {
     Color statusColor;
     switch (order?.orderStatus?.toLowerCase()) {
       case 'completed':
+      case 'complete':
         statusColor = const Color(0xFF10B981);
         break;
       case 'pending':
@@ -96,7 +115,16 @@ class _OrderViewState extends State<OrderView> {
         statusColor = const Color(0xFFEF4444);
         break;
       case 'inprogress':
+      case 'in progress':
         statusColor = const Color(0xFF3B82F6);
+        break;
+      case 'readytodeliver':
+      case 'ready to deliver':
+        statusColor = Colors.purple;
+        break;
+      case 'paymentpending':
+      case 'payment pending':
+        statusColor = Colors.orange.shade800;
         break;
       default:
         statusColor = const Color(0xFF6B7280);
@@ -444,34 +472,92 @@ class _OrderViewState extends State<OrderView> {
                 bottom: Radius.circular(24),
               ),
             ),
-            child: Obx(() {
-              final start = orderController.startDate.value;
-              final end = orderController.endDate.value;
-              final startStr =
-                  start != null ? DateFormat('dd MMM yyyy').format(start) : '-';
-              final endStr =
-                  end != null ? DateFormat('dd MMM yyyy').format(end) : '-';
+            child: Column(
+              children: [
+                Obx(() {
+                  final start = orderController.startDate.value;
+                  final end = orderController.endDate.value;
+                  final startStr =
+                      start != null
+                          ? DateFormat('dd MMM yyyy').format(start)
+                          : '-';
+                  final endStr =
+                      end != null ? DateFormat('dd MMM yyyy').format(end) : '-';
 
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.calendar_today,
-                    color: Colors.white,
-                    size: 16,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '$startStr - $endStr',
-                    style: GoogleFonts.outfit(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              );
-            }),
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.calendar_today,
+                        color: Colors.white,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '$startStr - $endStr',
+                        style: GoogleFonts.outfit(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  );
+                }),
+                const SizedBox(height: 16),
+                // Status Filters
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Obx(() {
+                    return Row(
+                      children:
+                          orderController.orderStatuses.map((status) {
+                            final isSelected =
+                                orderController.orderStatusId.value ==
+                                status['id'];
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: ChoiceChip(
+                                label: Text(
+                                  status['name'],
+                                  style: GoogleFonts.outfit(
+                                    color:
+                                        isSelected
+                                            ? AppColors.primaryColorStudent(
+                                              context,
+                                            )
+                                            : Colors.red,
+                                    fontWeight:
+                                        isSelected
+                                            ? FontWeight.bold
+                                            : FontWeight.normal,
+                                  ),
+                                ),
+                                selected: isSelected,
+                                onSelected: (selected) {
+                                  if (selected) {
+                                    orderController.setOrderStatus(
+                                      status['id'],
+                                    );
+                                  }
+                                },
+                                backgroundColor: Colors.white.withOpacity(0.2),
+                                selectedColor: Colors.white,
+                                checkmarkColor: AppColors.primaryColorStudent(
+                                  context,
+                                ),
+                                side: BorderSide.none,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                    );
+                  }),
+                ),
+              ],
+            ),
           ),
 
           // Orders List
@@ -480,8 +566,7 @@ class _OrderViewState extends State<OrderView> {
               color: AppColors.primaryColorStudent(context),
               onRefresh: () => orderController.refreshOrders(),
               child: Obx(() {
-                if (orderController.isLoading.value &&
-                    orderController.orders.isEmpty) {
+                if (orderController.isLoading.value) {
                   return ListView.builder(
                     padding: const EdgeInsets.all(16),
                     itemCount: 5,
@@ -510,7 +595,7 @@ class _OrderViewState extends State<OrderView> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Try adjusting the date range',
+                          'Try adjusting the filters',
                           style: GoogleFonts.outfit(
                             fontSize: 14,
                             color: Colors.grey.shade400,
@@ -522,9 +607,27 @@ class _OrderViewState extends State<OrderView> {
                 }
 
                 return ListView.builder(
+                  controller: _scrollController,
                   padding: const EdgeInsets.all(16),
-                  itemCount: orderController.orders.length,
+                  itemCount: orderController.orders.length + 1,
                   itemBuilder: (context, index) {
+                    if (index == orderController.orders.length) {
+                      // Loading indicator at the bottom
+                      return Obx(() {
+                        if (orderController.isLoadingMore.value) {
+                          return Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                color: AppColors.primaryColorStudent(context),
+                              ),
+                            ),
+                          );
+                        } else {
+                          return const SizedBox.shrink();
+                        }
+                      });
+                    }
                     final order = orderController.orders[index];
                     return _buildOrderCard(context, order);
                   },

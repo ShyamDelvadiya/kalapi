@@ -146,9 +146,7 @@ class _OrderDetailViewState extends State<OrderDetailView> {
           );
         }
 
-        final order = orderController.orderDetails.value;
-
-        if (order == null) {
+        if (orderController.orderDetails.isEmpty) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -172,43 +170,14 @@ class _OrderDetailViewState extends State<OrderDetailView> {
           );
         }
 
-        final orderDate = orderController.parseDate(order.orderDate);
+        // Use the first item for general order info
+        final firstItem = orderController.orderDetails.first;
+
+        final orderDate = orderController.parseDate(firstItem.orderDate);
         final formattedDate =
             orderDate != null
                 ? DateFormat('dd MMM yyyy, hh:mm a').format(orderDate)
                 : '-';
-
-        // Determine status color
-        Color statusColor;
-        switch (order.status?.toLowerCase()) {
-          case 'completed':
-            statusColor = Colors.green;
-            break;
-          case 'pending':
-            statusColor = Colors.orange;
-            break;
-          case 'cancelled':
-            statusColor = Colors.red;
-            break;
-          default:
-            statusColor = Colors.blue;
-        }
-
-        // Payment status color
-        Color paymentStatusColor;
-        switch (order.paymentStatus?.toLowerCase()) {
-          case 'paid':
-            paymentStatusColor = Colors.green;
-            break;
-          case 'pending':
-            paymentStatusColor = Colors.orange;
-            break;
-          case 'failed':
-            paymentStatusColor = Colors.red;
-            break;
-          default:
-            paymentStatusColor = Colors.grey;
-        }
 
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -247,28 +216,10 @@ class _OrderDetailViewState extends State<OrderDetailView> {
                       children: [
                         Expanded(
                           child: Text(
-                            order.orderNumber ?? '-',
+                            firstItem.orderNumber ?? '-',
                             style: GoogleFonts.outfit(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: statusColor,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            order.status ?? '-',
-                            style: GoogleFonts.outfit(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
                               color: Colors.white,
                             ),
                           ),
@@ -301,7 +252,7 @@ class _OrderDetailViewState extends State<OrderDetailView> {
                             ),
                           ),
                           Text(
-                            '₹${order.finalAmount?.toStringAsFixed(2) ?? '0.00'}',
+                            '₹${firstItem.orderTotalAmount?.toStringAsFixed(2) ?? '0.00'}',
                             style: GoogleFonts.outfit(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
@@ -316,174 +267,71 @@ class _OrderDetailViewState extends State<OrderDetailView> {
               ),
               const SizedBox(height: 20),
 
-              // Customer Information
-              _buildInfoCard(
-                title: 'Customer Information',
-                icon: Icons.person_outline,
-                children: [
-                  _buildInfoRow('Name', order.customerName ?? '-'),
-                  _buildInfoRow('Phone', order.customerPhone ?? '-'),
-                  if (order.customerEmail != null &&
-                      order.customerEmail!.isNotEmpty)
-                    _buildInfoRow('Email', order.customerEmail!),
-                  if (order.deliveryAddress != null &&
-                      order.deliveryAddress!.isNotEmpty)
-                    _buildInfoRow('Address', order.deliveryAddress!),
-                ],
-              ),
-
-              // Payment Information
-              _buildInfoCard(
-                title: 'Payment Information',
-                icon: Icons.payment_outlined,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Payment Status',
-                        style: GoogleFonts.outfit(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: paymentStatusColor,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          order.paymentStatus ?? '-',
-                          style: GoogleFonts.outfit(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  if (order.paymentMethod != null &&
-                      order.paymentMethod!.isNotEmpty)
-                    _buildInfoRow('Payment Method', order.paymentMethod!),
-                ],
-              ),
-
               // Order Items
               _buildInfoCard(
-                title: 'Order Items (${order.orderItems?.length ?? 0})',
+                title: 'Order Items (${orderController.orderDetails.length})',
                 icon: Icons.shopping_bag_outlined,
                 children: [
-                  if (order.orderItems != null && order.orderItems!.isNotEmpty)
-                    ...order.orderItems!.map((item) {
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[50],
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: Colors.grey[200]!,
-                            width: 1,
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    item.productName ?? '-',
-                                    style: GoogleFonts.outfit(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.black87,
-                                    ),
-                                  ),
-                                ),
-                                Text(
-                                  '₹${item.totalPrice?.toStringAsFixed(2) ?? '0.00'}',
+                  ...orderController.orderDetails.map((item) {
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[50],
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey[200]!, width: 1),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  item.productName ?? '-',
                                   style: GoogleFonts.outfit(
                                     fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.primaryColorStudent(
-                                      context,
-                                    ),
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black87,
                                   ),
                                 ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                if (item.sku != null && item.sku!.isNotEmpty)
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[200],
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: Text(
-                                      'SKU: ${item.sku}',
-                                      style: GoogleFonts.outfit(
-                                        fontSize: 11,
-                                        color: Colors.grey[700],
-                                      ),
-                                    ),
-                                  ),
-                                const SizedBox(width: 8),
-                                if (item.weight != null &&
-                                    item.weight!.isNotEmpty)
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.orange[50],
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: Text(
-                                      item.weight!,
-                                      style: GoogleFonts.outfit(
-                                        fontSize: 11,
-                                        color: Colors.orange[900],
-                                      ),
-                                    ),
-                                  ),
-                                const Spacer(),
-                                Text(
-                                  'Qty: ${item.quantity ?? 0}',
-                                  style: GoogleFonts.outfit(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.grey[700],
-                                  ),
+                              ),
+                              Text(
+                                '₹${item.orderItemAmount?.toStringAsFixed(2) ?? '0.00'}',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.primaryColorStudent(context),
                                 ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      );
-                    }).toList()
-                  else
-                    Text(
-                      'No items',
-                      style: GoogleFonts.outfit(
-                        fontSize: 14,
-                        color: Colors.grey[500],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Text(
+                                'Qty: ${item.quantity ?? 0}',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.grey[700],
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                'Unit Price: ₹${item.unitPrice?.toStringAsFixed(2) ?? '0.00'}',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 13,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                    ),
+                    );
+                  }).toList(),
                 ],
               ),
 
@@ -493,45 +341,22 @@ class _OrderDetailViewState extends State<OrderDetailView> {
                 icon: Icons.receipt_long_outlined,
                 children: [
                   _buildInfoRow(
-                    'Subtotal',
-                    '₹${order.totalAmount?.toStringAsFixed(2) ?? '0.00'}',
-                  ),
-                  if (order.discount != null && order.discount! > 0)
-                    _buildInfoRow(
-                      'Discount',
-                      '- ₹${order.discount?.toStringAsFixed(2) ?? '0.00'}',
-                    ),
-                  const Divider(height: 20),
-                  _buildInfoRow(
-                    'Final Amount',
-                    '₹${order.finalAmount?.toStringAsFixed(2) ?? '0.00'}',
+                    'Total Amount',
+                    '₹${firstItem.orderTotalAmount?.toStringAsFixed(2) ?? '0.00'}',
                     isBold: true,
                   ),
                 ],
               ),
 
-              // Additional Information
-              if (order.remarks != null && order.remarks!.isNotEmpty)
-                _buildInfoCard(
-                  title: 'Remarks',
-                  icon: Icons.note_outlined,
-                  children: [
-                    Text(
-                      order.remarks!,
-                      style: GoogleFonts.outfit(
-                        fontSize: 14,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ],
-                ),
-
               // Branch Information
-              if (order.branchName != null && order.branchName!.isNotEmpty)
+              if (firstItem.branchName != null &&
+                  firstItem.branchName!.isNotEmpty)
                 _buildInfoCard(
                   title: 'Branch',
                   icon: Icons.store_outlined,
-                  children: [_buildInfoRow('Branch Name', order.branchName!)],
+                  children: [
+                    _buildInfoRow('Branch Name', firstItem.branchName!),
+                  ],
                 ),
             ],
           ),

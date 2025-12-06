@@ -36,8 +36,8 @@ class OrderData {
   String? orderDate;
   int? branchID;
   String? branchName;
-  int? orderTotalAmount;
-  int? remainingAmount;
+  dynamic orderTotalAmount;
+  dynamic remainingAmount;
   int? orderStatusId;
   String? orderStatus;
 

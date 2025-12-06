@@ -1,11 +1,14 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:intl/intl.dart';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kalapi/api_service/api_service.dart';
 import 'package:kalapi/main.dart';
 import 'package:kalapi/utils/app_constrants.dart';
+import 'package:kalapi/view/pages/home/controller/home_controller.dart';
 import 'package:kalapi/view/pages/home/home_view.dart';
 import 'package:kalapi/view/pages/product/model/checkout_api_res.dart';
 import 'package:kalapi/view/pages/product/model/product_category_res.dart';
@@ -94,7 +97,7 @@ class ProductController extends GetxController {
       if (entry.value == true) {
         final pid = entry.key;
         final qty = cartQuantities[pid] ?? 1;
-        out.add({'productId': pid, 'quantity': qty});
+        out.add({'productId': pid, 'quantity': qty, "deliveredQuantity": null});
       }
     }
     return out;
@@ -249,7 +252,13 @@ class ProductController extends GetxController {
         // Find product in items list
         final product = items.firstWhereOrNull((p) => p.productId == productId);
         if (product != null) {
-          final price = product.basePrice?.toDouble() ?? 0.0;
+          // Use internalPrice for internal branches, basePrice otherwise
+          final price =
+              isInternalBranch.value
+                  ? (product.internalPrice?.toDouble() ??
+                      product.basePrice?.toDouble() ??
+                      0.0)
+                  : (product.basePrice?.toDouble() ?? 0.0);
           total += price * quantity;
         }
       }
@@ -270,11 +279,16 @@ class ProductController extends GetxController {
         // Find product in items list
         final product = items.firstWhereOrNull((p) => p.productId == productId);
         if (product != null) {
+          // Use internalPrice for internal branches, basePrice otherwise
+          final price =
+              isInternalBranch.value
+                  ? (product.internalPrice ?? product.basePrice)
+                  : product.basePrice;
           cartItems.add({
             'productId': productId,
             'productName': product.productName,
             'weight': product.weight,
-            'price': product.basePrice,
+            'price': price,
             'quantity': quantity,
           });
         }
@@ -299,7 +313,7 @@ class ProductController extends GetxController {
       final body = {
         "orderId": null,
         "branchId": branchId,
-        "orderDate": null,
+        "orderDate": DateFormat('yyyy-MM-dd').format(DateTime.now()),
         "orderDetails": getSelectedOrderItems(),
       };
 

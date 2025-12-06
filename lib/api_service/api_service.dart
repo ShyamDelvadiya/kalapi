@@ -315,34 +315,35 @@ class RestRequestProvider extends GetConnect {
   /// doesn't return an expiration field.
   bool isTokenExpired(String? expiration) {
     // If there's no expiration provided, assume token is not expired.
-    if (expiration == null || expiration.trim().isEmpty) return false;
+    // if (expiration == null || expiration.trim().isEmpty) return false;
 
-    try {
-      // First try ISO-8601 parsing which is the most common format returned by
-      // modern backends (e.g. "2024-11-23T12:34:56Z" or without timezone).
-      final iso = DateTime.tryParse(expiration);
-      if (iso != null) {
-        return DateTime.now().isAfter(iso);
-      }
+    // try {
+    //   // First try ISO-8601 parsing which is the most common format returned by
+    //   // modern backends (e.g. "2024-11-23T12:34:56Z" or without timezone).
+    //   final iso = DateTime.tryParse(expiration);
+    //   if (iso != null) {
+    //     return DateTime.now().isAfter(iso);
+    //   }
 
-      // Fallback to the legacy format some endpoints return: dd/MM/yyyy HH:mm:ss
-      try {
-        final format = DateFormat("dd/MM/yyyy HH:mm:ss");
-        final expirationTime = format.parse(expiration);
-        return DateTime.now().isAfter(expirationTime);
-      } catch (e) {
-        // If that fails, be conservative and treat token as NOT expired so
-        // users are not unexpectedly logged out due to format mismatch.
-        log(
-          "isTokenExpired: failed to parse expiration string: $expiration | $e",
-        );
-        return false;
-      }
-    } catch (e) {
-      // Extremely defensive: any unexpected error -> do not treat token as expired.
-      log("isTokenExpired: unexpected error while parsing expiration: $e");
-      return false;
-    }
+    //   // Fallback to the legacy format some endpoints return: dd/MM/yyyy HH:mm:ss
+    //   try {
+    //     final format = DateFormat("dd/MM/yyyy HH:mm:ss");
+    //     final expirationTime = format.parse(expiration);
+    //     return DateTime.now().isAfter(expirationTime);
+    //   } catch (e) {
+    //     // If that fails, be conservative and treat token as NOT expired so
+    //     // users are not unexpectedly logged out due to format mismatch.
+    //     log(
+    //       "isTokenExpired: failed to parse expiration string: $expiration | $e",
+    //     );
+    //     return false;
+    //   }
+    // } catch (e) {
+    //   // Extremely defensive: any unexpected error -> do not treat token as expired.
+    //   log("isTokenExpired: unexpected error while parsing expiration: $e");
+    //   return false;
+    // }
+    return false;
   }
 
   /// Handle an expired token: clear stored auth data and navigate back to login.
