@@ -13,7 +13,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.kalapi.app"
+    namespace = "com.kalapi.farshan.app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973"
 
@@ -36,7 +36,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.kalapi.app"
+        applicationId = "com.kalapi.farshan.app"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = 25

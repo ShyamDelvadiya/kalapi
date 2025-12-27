@@ -1,4 +1,4 @@
-package com.kalapi.app
+package com.kalapi.farshan.app
 
 import android.os.Bundle
 import io.flutter.embedding.android.FlutterFragmentActivity
