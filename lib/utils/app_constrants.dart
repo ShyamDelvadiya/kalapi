@@ -2,7 +2,7 @@ class ApiEndPoint {
   static const bool isProduction = true;
   static const apiBaseUrl =
       isProduction
-          ? "https://kalapifarsan.com/api"
+          ? "https://kalapifarsan.business/api"
           : 'https://unfixable-pedately-kaden.ngrok-free.dev/api'; // Main Base url
 
   static const login = "$apiBaseUrl/User/login";
