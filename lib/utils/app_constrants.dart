@@ -16,3 +16,11 @@ class ApiEndPoint {
   static const getOrderList = "$apiBaseUrl/Order/GetOrderList";
   static const getOrderDetails = "$apiBaseUrl/Order/GetOrderDetails";
 }
+
+/// App-wide external links
+class AppLinks {
+  static const String privacyPolicy =
+      "https://kalapifarsan.business/privacy-policy";
+  static const String termsAndConditions =
+      "https://kalapifarsan.business/terms-and-conditions";
+}

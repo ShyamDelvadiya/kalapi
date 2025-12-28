@@ -5,13 +5,15 @@ import 'package:kalapi/main.dart';
 import 'package:kalapi/routing/route_name.dart';
 import 'package:kalapi/utils/color_resources.dart';
 import 'package:kalapi/view/basewidget/custom_app_bar/custom_app_bar.dart';
+import 'package:kalapi/view/basewidget/confirm_dialogs.dart';
+import 'package:kalapi/view/basewidget/revenue_chart_card.dart';
 import 'package:kalapi/view/pages/home/controller/home_controller.dart';
 import 'package:kalapi/view/pages/order/order_view.dart';
 import 'package:kalapi/view/pages/product/product_view.dart';
 import 'package:shimmer/shimmer.dart';
 
 class HomeView extends StatefulWidget {
-  const   HomeView({super.key});
+  const HomeView({super.key});
 
   @override
   State<HomeView> createState() => _HomeViewState();
@@ -132,15 +134,26 @@ class _HomeViewState extends State<HomeView> {
         title: 'Dashboard',
         actions: [
           IconButton(
+            tooltip: 'Legal',
+            icon: Icon(
+              Icons.gavel_outlined,
+              color: AppColors.titleColor(context),
+            ),
+            onPressed: () => Get.toNamed(RouteName.legal),
+          ),
+          IconButton(
             icon: Icon(
               Icons.logout_rounded,
               color: AppColors.titleColor(context),
             ),
-            onPressed: () {
-              try {
-                pref.erase();
-              } catch (_) {}
-              Get.offAllNamed(RouteName.login);
+            onPressed: () async {
+              final confirm = await confirmLogoutDialog(context);
+              if (confirm) {
+                try {
+                  pref.erase();
+                } catch (_) {}
+                Get.offAllNamed(RouteName.login);
+              }
             },
           ),
         ],
@@ -313,6 +326,15 @@ class _HomeViewState extends State<HomeView> {
                           width: cardWidth,
                           isLoading: isLoading,
                         ),
+                        // SizedBox(
+                        //   width: maxWidth,
+                        //   child: RevenueChartCard(
+                        //     current: homeController.revenueCurrent.toList(),
+                        //     previous: homeController.revenuePrevious.toList(),
+                        //     currentLabel: homeController.currentLabel.value,
+                        //     previousLabel: homeController.previousLabel.value,
+                        //   ),
+                        // ),
                         // Add more cards here if needed
                       ],
                     );

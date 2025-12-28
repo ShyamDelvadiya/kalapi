@@ -9,6 +9,7 @@ import 'package:kalapi/utils/diamension.dart';
 import 'package:kalapi/view/basewidget/custom_button/custom_button.dart';
 import 'package:kalapi/view/basewidget/textformfield/custom_text_form_field.dart';
 import 'package:kalapi/view/pages/login/controller/loginController.dart';
+import 'package:kalapi/view/basewidget/policy_links.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -261,6 +262,14 @@ class _LoginViewState extends State<LoginView> {
                     ),
                   );
                 }),
+
+                const SizedBox(height: 16),
+                // Privacy Policy and Terms
+                PolicyLinksRow(
+                  textColor: AppColors.whiteColor(context).withOpacity(0.9),
+                  alignment: MainAxisAlignment.center,
+                  underline: true,
+                ),
               ],
             ),
           ),

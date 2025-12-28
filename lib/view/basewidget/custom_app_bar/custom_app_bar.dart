@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kalapi/view/basewidget/policy_links.dart';
 
 /// A reusable, beautiful custom app bar with gradient background and rounded bottom.
 ///
@@ -63,12 +64,21 @@ PreferredSizeWidget customAppBar(
                 ),
               ),
 
-              // Actions
-              if (actions != null)
-                Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: Row(mainAxisSize: MainAxisSize.min, children: actions),
+              // Actions (append legal/info button)
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (actions != null) ...actions,
+                    IconButton(
+                      tooltip: 'Policies',
+                      icon: const Icon(Icons.info_outline, color: Colors.white),
+                      onPressed: () => showPoliciesBottomSheet(context),
+                    ),
+                  ],
                 ),
+              ),
             ],
           ),
         ),

@@ -39,7 +39,7 @@ android {
         applicationId = "com.kalapi.farshan.app"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        versionCode = 25
+        versionCode = 1
         versionName = flutter.versionName
     }
 
