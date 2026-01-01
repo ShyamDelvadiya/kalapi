@@ -51,19 +51,20 @@ class LoginController extends GetxController {
             // mark logged in
             // Persist token and expiration under the keys other services expect
             // Save both `expiryToken` (legacy) and `expiration` (used by api_service)
-            if (userToken.isNotEmpty) {
-              log(" Login Token: $userToken ");
-              pref.write("isLoggedIn", true);
-              pref.write("userToken", userToken);
-              // write legacy key as well
-              pref.write("expiryToken", expiryToken);
-              // api_service expects `expiration` (ISO string). Save it too.
-              pref.write("expiration", expiryToken);
-              pref.write("savedEmail", savedEmail);
-              pref.write("savedPassword", savedPassword);
-              pref.write("isInternalBranch", isInternalBranch);
-              pref.write("branchId", branchNum.toString());
-            }
+            // if (userToken.isNotEmpty) {
+
+            pref.write("isLoggedIn", true);
+            pref.write("userToken", userToken);
+            // write legacy key as well
+            pref.write("expiryToken", expiryToken);
+            log(" Login Token: $expiryToken ");
+            // api_service expects `expiration` (ISO string). Save it too.
+            pref.write("expiration", expiryToken);
+            pref.write("savedEmail", savedEmail);
+            pref.write("savedPassword", savedPassword);
+            pref.write("isInternalBranch", isInternalBranch);
+            pref.write("branchId", branchNum.toString());
+            // }
           } catch (e) {
             log("Failed to write isLoggedIn: $e");
           }
