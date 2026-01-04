@@ -609,24 +609,20 @@ class _OrderViewState extends State<OrderView> {
                 return ListView.builder(
                   controller: _scrollController,
                   padding: const EdgeInsets.all(16),
-                  itemCount: orderController.orders.length + 1,
+                  itemCount:
+                      orderController.orders.length +
+                      (orderController.isLoadingMore.value ? 1 : 0),
                   itemBuilder: (context, index) {
-                    if (index == orderController.orders.length) {
+                    if (index >= orderController.orders.length) {
                       // Loading indicator at the bottom
-                      return Obx(() {
-                        if (orderController.isLoadingMore.value) {
-                          return Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Center(
-                              child: CircularProgressIndicator(
-                                color: AppColors.primaryColorStudent(context),
-                              ),
-                            ),
-                          );
-                        } else {
-                          return const SizedBox.shrink();
-                        }
-                      });
+                      return Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: AppColors.primaryColorStudent(context),
+                          ),
+                        ),
+                      );
                     }
                     final order = orderController.orders[index];
                     return _buildOrderCard(context, order);

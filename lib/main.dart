@@ -7,6 +7,7 @@ import 'package:kalapi/routing/route_binding.dart';
 import 'package:kalapi/routing/route_name.dart';
 import 'package:kalapi/theme_controller/theme_controller.dart';
 import 'Bindings/app_binding.dart';
+import 'package:flutter/gestures.dart';
 
 var pref = GetStorage();
 final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
@@ -21,6 +22,28 @@ void main() async {
   await GetStorage.init();
   Get.put(AppController());
   runApp(MyApp());
+}
+
+class NoGlowScrollBehavior extends ScrollBehavior {
+  const NoGlowScrollBehavior();
+
+  @override
+  Widget buildOverscrollIndicator(
+    BuildContext context,
+    Widget child,
+    ScrollableDetails details,
+  ) {
+    // Remove the glow effect on all scrollables
+    return child;
+  }
+
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+    PointerDeviceKind.touch,
+    PointerDeviceKind.mouse,
+    PointerDeviceKind.trackpad,
+    PointerDeviceKind.stylus,
+  };
 }
 
 class MyApp extends StatelessWidget {
@@ -45,9 +68,24 @@ class MyApp extends StatelessWidget {
             child: GetMaterialApp(
               scaffoldMessengerKey: rootScaffoldMessengerKey,
               navigatorObservers: [routeObserver],
+              scrollBehavior: const NoGlowScrollBehavior(),
               themeMode: themeController.themeMode.value,
-              theme: ThemeData.light(),
-              darkTheme: ThemeData.dark(),
+              theme: ThemeData.light().copyWith(
+                appBarTheme: const AppBarTheme(
+                  elevation: 0,
+                  scrolledUnderElevation: 0,
+                  shadowColor: Colors.transparent,
+                  surfaceTintColor: Colors.transparent,
+                ),
+              ),
+              darkTheme: ThemeData.dark().copyWith(
+                appBarTheme: const AppBarTheme(
+                  elevation: 0,
+                  scrolledUnderElevation: 0,
+                  shadowColor: Colors.transparent,
+                  surfaceTintColor: Colors.transparent,
+                ),
+              ),
               smartManagement: SmartManagement.full,
               initialBinding: AppBinding(),
               initialRoute: RouteName.splash,

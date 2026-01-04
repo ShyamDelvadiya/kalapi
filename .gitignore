@@ -1,0 +1,72 @@
+# Flutter/Dart project - root .gitignore
+
+# Misc
+.DS_Store
+*.swp
+*.swo
+*.tmp
+*.log
+.svn/
+.buildlog/
+.history
+.atom/
+
+# IDEs
+*.iml
+*.ipr
+*.iws
+.idea/
+.vscode/
+
+# Dart / Flutter / Pub
+.dart_tool/
+.packages
+.pub/
+.pub-cache/
+build/
+coverage/
+**/doc/api/
+# Generated plugin registrant (varies by platform)
+**/GeneratedPluginRegistrant.*
+**/generated_plugin_registrant.dart
+
+# Android
+**/android/.gradle/
+**/android/captures/
+**/android/local.properties
+**/android/**/GeneratedPluginRegistrant.java
+
+# iOS
+**/ios/Flutter/.last_build_id
+**/ios/Flutter/App.framework
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/ephemeral/
+**/ios/Flutter/engine/
+**/ios/Flutter/FlutterPluginRegistrant/
+**/ios/ServiceDefinitions.json
+**/ios/Runner/GeneratedPluginRegistrant.*
+
+# macOS
+**/macos/Flutter/ephemeral/
+**/macos/Flutter/GeneratedPluginRegistrant.swift
+**/macos/**/.symlinks/
+**/macos/**/DerivedData/
+**/macos/Flutter/Generated.xcconfig
+**/macos/Pods/
+
+# Xcode noise
+**/*.mode1v3
+**/*.mode2v3
+**/*.perspectivev3
+**/*sync/
+**/*.pbxuser
+**/xcuserdata/
+**/*.xcworkspace/xcuserdata/
+
+# CocoaPods (let platform .gitignore handle specifics, but ensure not committed)
+**/Pods/
+
+# Native assets (Flutter tool output)
+**/build/native_assets/

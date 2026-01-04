@@ -35,12 +35,12 @@ class CustomTextFormField extends StatelessWidget {
   final bool fillColorBool;
   final AutovalidateMode? autovalidate;
   final InputDecoration? decoration;
-  String? Function(String?)? validator;
-  List<TextInputFormatter>? inputFormatters;
-  void Function(String)? onChanged;
-  void Function(String?)? onSubmit;
-  void Function(String)? onFieldSubmitted;
-  void Function()? onTap;
+  final String? Function(String?)? validator;
+  final List<TextInputFormatter>? inputFormatters;
+  final void Function(String)? onChanged;
+  final void Function(String?)? onSubmit;
+  final void Function(String)? onFieldSubmitted;
+  final void Function()? onTap;
   CustomTextFormField({
     this.controller,
     this.hintstyle,

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:kalapi/utils/color_resources.dart';
 import 'package:kalapi/view/pages/product/controller/product_controller.dart';
+import 'package:kalapi/view/pages/home/controller/home_controller.dart';
 import 'package:kalapi/view/pages/product/widget/common_quntity.dart';
 
 class CartCheckoutView extends StatelessWidget {
@@ -136,13 +137,50 @@ class CartCheckoutView extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(height: 6),
-                              Text(
-                                '₹${price.toStringAsFixed(2)}',
-                                style: GoogleFonts.outfit(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.primaryColorStudent(context),
-                                ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    '₹${price.toStringAsFixed(2)}',
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.primaryColorStudent(
+                                        context,
+                                      ),
+                                    ),
+                                  ),
+                                  Obx(() {
+                                    final label =
+                                        isInternalBranch.value
+                                            ? 'Internal'
+                                            : 'Base';
+                                    return Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 2,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.orange.shade50,
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: Colors.orange.shade200,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        label,
+                                        style: GoogleFonts.outfit(
+                                          fontSize: 11,
+                                          color: AppColors.primaryColorStudent(
+                                            context,
+                                          ),
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    );
+                                  }),
+                                ],
                               ),
                             ],
                           ),

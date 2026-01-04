@@ -131,22 +131,32 @@ class HomeController extends GetxController {
         onSuccess: (responseData) async {
           // notify caller
           requestStatus.value = RequestStatus.success;
-          // Some APIs return a list with a single object. Handle both Map and List responses.
-          dynamic json = responseData;
-          if (responseData is List && responseData.isNotEmpty) {
-            json = responseData[0];
+
+          // Robustly extract branch object from {data: [...] } or direct map
+          final dynamic dataField = responseData['data'];
+          dynamic branchObj;
+          if (dataField is List && dataField.isNotEmpty) {
+            branchObj = dataField.first;
+          } else if (dataField is Map<String, dynamic>) {
+            branchObj = dataField;
+          } else {
+            branchObj = responseData; // fallback to entire map if no data key
           }
-          if (json is Map<String, dynamic>) {
+
+          if (branchObj is Map<String, dynamic>) {
             branchDetailsResponseModel.value = BranchDetailsApiRes.fromJson(
-              json,
+              branchObj,
             );
           } else {
-            // Unexpected shape — try to guard against common cases
+            // Unexpected shape — default to empty model
             branchDetailsResponseModel.value = BranchDetailsApiRes();
           }
+
           isInternalBranch.value =
               branchDetailsResponseModel.value.isInternalBranch ?? false;
           log('---- branch details -- ${branchDetailsResponseModel.value}');
+          log('---- isInternalBranch -- ${isInternalBranch.value}');
+
           homeApiCall(branchId: branchId);
         },
         onError: (errors, statusCode) {},

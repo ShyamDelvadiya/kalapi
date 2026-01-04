@@ -97,7 +97,37 @@ class ProductController extends GetxController {
       if (entry.value == true) {
         final pid = entry.key;
         final qty = cartQuantities[pid] ?? 1;
-        out.add({'productId': pid, 'quantity': qty, "deliveredQuantity": null});
+        // Attach chosen unit price for API (internal vs base)
+        final product = items.firstWhereOrNull((p) => p.productId == pid);
+        double unitPrice = 0.0;
+        if (product != null) {
+          num? baseNum;
+          num? internalNum;
+          // Safely coerce dynamic values to num
+          if (product.basePrice is num) {
+            baseNum = product.basePrice as num?;
+          } else if (product.basePrice != null) {
+            baseNum = num.tryParse(product.basePrice.toString());
+          }
+
+          if (product.internalPrice is num) {
+            internalNum = product.internalPrice as num?;
+          } else if (product.internalPrice != null) {
+            internalNum = num.tryParse(product.internalPrice.toString());
+          }
+
+          unitPrice =
+              isInternalBranch.value
+                  ? ((internalNum ?? baseNum) ?? 0).toDouble()
+                  : (baseNum ?? 0).toDouble();
+        }
+
+        out.add({
+          'productId': pid,
+          'quantity': qty,
+          'deliveredQuantity': null,
+          'unitPrice': unitPrice,
+        });
       }
     }
     return out;
@@ -201,6 +231,19 @@ class ProductController extends GetxController {
       );
     } catch (e) {
       log('Exception fetching categories: $e');
+    }
+  }
+
+  /// Load the next page of products if possible
+  void loadMoreProducts() {
+    if (!isLoading.value && !isLoadingMore.value && hasMore.value) {
+      final nextPage = currentPage.value + 1;
+      productApiCall(
+        page: nextPage,
+        size: pageSize.value,
+        categoryId: selectedCategoryId.value,
+        search: searchQuery.value,
+      );
     }
   }
 
@@ -333,15 +376,17 @@ class ProductController extends GetxController {
           // Clear cart after successful order
           clearCartSelection();
 
-          Get.offAll(HomeView());
-
-          Get.snackbar(
-            'Success',
-            'Order placed successfully!',
-            backgroundColor: Colors.green,
-            colorText: Colors.white,
-            snackPosition: SnackPosition.BOTTOM,
-          );
+          // Navigate to Home and show snackbar after the new frame is ready
+          await Get.offAll(() => HomeView());
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            rootScaffoldMessengerKey.currentState?.showSnackBar(
+              SnackBar(
+                content: const Text('Order placed successfully!'),
+                backgroundColor: Colors.green,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          });
         },
       );
     } catch (e) {

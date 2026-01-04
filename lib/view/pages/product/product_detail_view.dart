@@ -297,9 +297,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                                   0)
                               : (product?.basePrice ?? 0);
                       final priceLabel =
-                          isInternalBranch.value
-                              ? 'Internal Price'
-                              : 'Base Price';
+                          isInternalBranch.value ? 'Price' : 'Price';
                       return Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
@@ -356,8 +354,9 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                   ),
                   _buildInfoRow(
                     context: context,
-                    label: 'Internal Price',
-                    value: '₹${product?.internalPrice ?? 0}',
+                    label: 'Price',
+                    value:
+                        '₹${isInternalBranch.value ? (product?.internalPrice ?? product?.basePrice ?? 0) : (product?.basePrice ?? 0)}',
                     icon: Icons.currency_rupee,
                   ),
                 ],

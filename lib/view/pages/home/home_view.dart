@@ -5,8 +5,6 @@ import 'package:kalapi/main.dart';
 import 'package:kalapi/routing/route_name.dart';
 import 'package:kalapi/utils/color_resources.dart';
 import 'package:kalapi/view/basewidget/custom_app_bar/custom_app_bar.dart';
-import 'package:kalapi/view/basewidget/confirm_dialogs.dart';
-import 'package:kalapi/view/basewidget/revenue_chart_card.dart';
 import 'package:kalapi/view/pages/home/controller/home_controller.dart';
 import 'package:kalapi/view/pages/order/order_view.dart';
 import 'package:kalapi/view/pages/product/product_view.dart';
@@ -130,31 +128,13 @@ class _HomeViewState extends State<HomeView> {
       backgroundColor: AppColors.backGroundColor(context),
       appBar: customAppBar(
         context,
-        leading: const SizedBox(),
         title: 'Dashboard',
+        leading: const SizedBox.shrink(),
         actions: [
           IconButton(
-            tooltip: 'Legal',
-            icon: Icon(
-              Icons.gavel_outlined,
-              color: AppColors.titleColor(context),
-            ),
+            tooltip: 'Profile',
+            icon: const Icon(Icons.person_outline, color: Colors.white),
             onPressed: () => Get.toNamed(RouteName.legal),
-          ),
-          IconButton(
-            icon: Icon(
-              Icons.logout_rounded,
-              color: AppColors.titleColor(context),
-            ),
-            onPressed: () async {
-              final confirm = await confirmLogoutDialog(context);
-              if (confirm) {
-                try {
-                  pref.erase();
-                } catch (_) {}
-                Get.offAllNamed(RouteName.login);
-              }
-            },
           ),
         ],
       ),
