@@ -31,7 +31,13 @@ android {
             keyAlias = keystoreProperties.getProperty("keyAlias") ?: ""
             keyPassword = keystoreProperties.getProperty("keyPassword") ?: ""
             storePassword = keystoreProperties.getProperty("storePassword") ?: ""
-            storeFile = keystoreProperties.getProperty("storeFile")?.let { file(it) }
+            val storePath = keystoreProperties.getProperty("storeFile")
+            if (!storePath.isNullOrBlank()) {
+                val candidate = rootProject.file(storePath)
+                if (candidate.exists()) {
+                    storeFile = candidate
+                }
+            }
         }
     }
 
@@ -39,13 +45,16 @@ android {
         applicationId = "com.kalapi.farshan.app"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        versionCode = 4
+        versionCode = 5
         versionName = flutter.versionName
     }
 
     buildTypes {
         getByName("release") {
-            signingConfig = if (keystorePropertiesFile.exists()) {
+            val storeFileProp = keystoreProperties.getProperty("storeFile")
+            val candidate = if (!storeFileProp.isNullOrBlank()) rootProject.file(storeFileProp) else null
+            val hasSigning = keystorePropertiesFile.exists() && (candidate?.exists() == true)
+            signingConfig = if (hasSigning) {
                 signingConfigs.getByName("release")
             } else {
                 signingConfigs.getByName("debug")
