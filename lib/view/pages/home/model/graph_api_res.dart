@@ -41,16 +41,16 @@ class Chart {
 
 class Series {
   String? name;
-  List<Data>? data;
+  List<ChartPoint>? data;
 
   Series({this.name, this.data});
 
   Series.fromJson(Map<String, dynamic> json) {
     name = json['name'];
     if (json['data'] != null) {
-      data = <Data>[];
+      data = <ChartPoint>[];
       json['data'].forEach((v) {
-        data!.add(new Data.fromJson(v));
+        data!.add(new ChartPoint.fromJson(v));
       });
     }
   }
@@ -65,13 +65,13 @@ class Series {
   }
 }
 
-class Data {
+class ChartPoint {
   String? date;
   double? value;
 
-  Data({this.date, this.value});
-  
-  Data.fromJson(Map<String, dynamic> json) {
+  ChartPoint({this.date, this.value});
+
+  ChartPoint.fromJson(Map<String, dynamic> json) {
     date = json['date'];
     // Handle both int and double values from API
     if (json['value'] != null) {

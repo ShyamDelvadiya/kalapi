@@ -162,7 +162,7 @@ class HomeController extends GetxController {
                   series[0].data != null &&
                   series[0].data!.isNotEmpty) {
                 // Sort data by date to ensure chronological order
-                final sortedData = List<Data>.from(series[0].data!);
+                final sortedData = List<ChartPoint>.from(series[0].data!);
                 sortedData.sort((a, b) {
                   if (a.date == null || b.date == null) return 0;
                   return a.date!.compareTo(b.date!);
@@ -185,7 +185,7 @@ class HomeController extends GetxController {
                   series[1].data != null &&
                   series[1].data!.isNotEmpty) {
                 // Sort data by date to ensure chronological order
-                final sortedData = List<Data>.from(series[1].data!);
+                final sortedData = List<ChartPoint>.from(series[1].data!);
                 sortedData.sort((a, b) {
                   if (a.date == null || b.date == null) return 0;
                   return a.date!.compareTo(b.date!);
