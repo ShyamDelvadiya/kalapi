@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:kalapi/main.dart';
 import 'package:kalapi/routing/route_name.dart';
 import 'package:kalapi/utils/color_resources.dart';
 import 'package:kalapi/view/basewidget/custom_app_bar/custom_app_bar.dart';
+import 'package:kalapi/view/basewidget/revenue_chart_card.dart';
 import 'package:kalapi/view/pages/home/controller/home_controller.dart';
 import 'package:kalapi/view/pages/order/order_view.dart';
 import 'package:kalapi/view/pages/product/product_view.dart';
@@ -20,12 +22,116 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   final HomeController homeController = Get.put(HomeController());
   String? branchId;
+  DateTime? _startDate;
+  DateTime? _endDate;
 
   @override
   void initState() {
     super.initState();
     branchId = pref.read("branchId") ?? '0';
+    // Initialize dates to default range (last 30 days)
+    _endDate = DateTime.now();
+    _startDate = _endDate!.subtract(Duration(days: 30));
+    homeController.startDate = _startDate;
+    homeController.endDate = _endDate;
     homeController.branchDetailsApiCall(branchId: branchId);
+    // Load chart data with default dates
+    _loadChartData();
+  }
+
+  void _loadChartData() {
+    if (_startDate != null && _endDate != null && branchId != null) {
+      // Call homeApiCall with dates to fetch both dashboard and chart data
+      homeController.homeApiCall(
+        branchId: branchId,
+        startDate: _startDate,
+        endDate: _endDate,
+      );
+    }
+  }
+
+  Future<void> _selectStartDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _startDate ?? DateTime.now().subtract(Duration(days: 30)),
+      firstDate: DateTime(2020),
+      lastDate: _endDate ?? DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: AppColors.primaryColorStudent(context),
+              onPrimary: Colors.white,
+              surface: Colors.white,
+              onSurface: Colors.black,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null && picked != _startDate) {
+      setState(() {
+        _startDate = picked;
+        // If end date is null or before start date, set it to start date + 1 day
+        if (_endDate == null || _startDate!.isAfter(_endDate!)) {
+          _endDate = _startDate!.add(Duration(days: 1));
+          if (_endDate!.isAfter(DateTime.now())) {
+            _endDate = DateTime.now();
+          }
+        }
+      });
+      homeController.startDate = _startDate;
+      homeController.endDate = _endDate;
+      // Only load chart data if both dates are set
+      if (_startDate != null && _endDate != null) {
+        _loadChartData();
+      }
+    }
+  }
+
+  Future<void> _selectEndDate(BuildContext context) async {
+    // If start date is not selected, show a message
+    if (_startDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please select start date first'),
+          backgroundColor: Colors.orange,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _endDate ?? _startDate!.add(Duration(days: 1)),
+      firstDate: _startDate!,
+      lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: AppColors.primaryColorStudent(context),
+              onPrimary: Colors.white,
+              surface: Colors.white,
+              onSurface: Colors.black,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null && picked != _endDate) {
+      setState(() {
+        _endDate = picked;
+      });
+      homeController.endDate = _endDate;
+      // Load chart data when end date is selected
+      if (_startDate != null && _endDate != null) {
+        _loadChartData();
+      }
+    }
   }
 
   Widget _buildStatCard(
@@ -122,6 +228,189 @@ class _HomeViewState extends State<HomeView> {
     return Expanded(child: card);
   }
 
+  Widget _buildAmountCard(
+    BuildContext context, {
+    required String label,
+    required dynamic amount,
+    required IconData icon,
+  }) {
+    final amountValue = amount is num ? amount.toDouble() : 0.0;
+    final formattedAmount =
+        amountValue >= 1000
+            ? '₹${(amountValue / 1000).toStringAsFixed(1)}k'
+            : '₹${amountValue.toStringAsFixed(0)}';
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: Colors.white, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: GoogleFonts.outfit(
+                    fontSize: 11,
+                    color: Colors.white.withOpacity(0.8),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  formattedAmount,
+                  style: GoogleFonts.outfit(
+                    fontSize: 16,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDatePickerButton(
+    BuildContext context, {
+    required String label,
+    required DateTime? date,
+    required VoidCallback onTap,
+    bool isRequired = false,
+    bool isDisabled = false,
+  }) {
+    final bool isEmpty = date == null;
+    final bool hasError = isRequired && isEmpty && !isDisabled;
+
+    return InkWell(
+      onTap: isDisabled ? null : onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Opacity(
+        opacity: isDisabled ? 0.5 : 1.0,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color:
+                isDisabled
+                    ? AppColors.backGroundColor(context).withOpacity(0.5)
+                    : AppColors.backGroundColor(context),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color:
+                  hasError
+                      ? Colors.red.withOpacity(0.5)
+                      : AppColors.primaryColorStudent(context).withOpacity(0.3),
+              width: hasError ? 2.0 : 1.5,
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color:
+                      isDisabled
+                          ? Colors.grey.withOpacity(0.2)
+                          : AppColors.primaryColorStudent(
+                            context,
+                          ).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.calendar_today_outlined,
+                  size: 18,
+                  color:
+                      isDisabled
+                          ? Colors.grey
+                          : AppColors.primaryColorStudent(context),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          label,
+                          style: GoogleFonts.outfit(
+                            fontSize: 12,
+                            color:
+                                isDisabled
+                                    ? AppColors.titleColor(
+                                      context,
+                                    ).withOpacity(0.4)
+                                    : AppColors.titleColor(
+                                      context,
+                                    ).withOpacity(0.6),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        if (isRequired && !isDisabled)
+                          Text(
+                            ' *',
+                            style: GoogleFonts.outfit(
+                              fontSize: 12,
+                              color: hasError ? Colors.red : Colors.orange,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      date != null
+                          ? DateFormat('MMM dd, yyyy').format(date)
+                          : isDisabled
+                          ? 'Select start date first'
+                          : 'Select date',
+                      style: GoogleFonts.outfit(
+                        fontSize: 14,
+                        color:
+                            date != null
+                                ? AppColors.titleColor(context)
+                                : isDisabled
+                                ? AppColors.titleColor(context).withOpacity(0.3)
+                                : AppColors.titleColor(
+                                  context,
+                                ).withOpacity(0.5),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                isDisabled ? Icons.lock_outline : Icons.arrow_drop_down,
+                color:
+                    isDisabled
+                        ? Colors.grey
+                        : AppColors.primaryColorStudent(context),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -142,6 +431,10 @@ class _HomeViewState extends State<HomeView> {
         color: AppColors.primaryColorStudent(context),
         onRefresh: () async {
           homeController.branchDetailsApiCall(branchId: branchId ?? '0');
+          // Reload chart data with current dates
+          if (_startDate != null && _endDate != null) {
+            _loadChartData();
+          }
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -173,63 +466,98 @@ class _HomeViewState extends State<HomeView> {
                     ),
                   ],
                 ),
-                child: Row(
+                child: Column(
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Welcome back!',
-                            style: GoogleFonts.outfit(
-                              fontSize: 16,
-                              color: Colors.white.withOpacity(0.9),
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Kalapi Farsan',
-                            style: GoogleFonts.outfit(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              'Manage your shop efficiently',
-                              style: GoogleFonts.outfit(
-                                fontSize: 12,
-                                color: Colors.white,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Welcome back!',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 16,
+                                  color: Colors.white.withOpacity(0.9),
+                                ),
                               ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Kalapi Farsan',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  'Manage your shop efficiently',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 12,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                          child: CircleAvatar(
+                            radius: 30,
+                            backgroundColor: Colors.white,
+                            backgroundImage: const AssetImage(
+                              'assets/images/logo 1.png',
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    // Order Amount Information
+                    Obx(() {
+                      final dashboard =
+                          homeController.dashboardResponseModel.value;
+                      final currentMonthAmount =
+                          dashboard.currentMonthOrderAmount ?? 0.0;
+                      final totalAmount = dashboard.totalOrderAmount ?? 0.0;
+
+                      return Row(
+                        children: [
+                          Expanded(
+                            child: _buildAmountCard(
+                              context,
+                              label: 'This Month',
+                              amount: currentMonthAmount,
+                              icon: Icons.calendar_today_outlined,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _buildAmountCard(
+                              context,
+                              label: 'Total Revenue',
+                              amount: totalAmount,
+                              icon: Icons.account_balance_wallet_outlined,
                             ),
                           ),
                         ],
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                      ),
-                      child: CircleAvatar(
-                        radius: 30,
-                        backgroundColor: Colors.white,
-                        backgroundImage: const AssetImage(
-                          'assets/images/logo 1.png',
-                        ),
-                      ),
-                    ),
+                      );
+                    }),
                   ],
                 ),
               ),
@@ -306,21 +634,40 @@ class _HomeViewState extends State<HomeView> {
                           width: cardWidth,
                           isLoading: isLoading,
                         ),
-                        // SizedBox(
-                        //   width: maxWidth,
-                        //   child: RevenueChartCard(
-                        //     current: homeController.revenueCurrent.toList(),
-                        //     previous: homeController.revenuePrevious.toList(),
-                        //     currentLabel: homeController.currentLabel.value,
-                        //     previousLabel: homeController.previousLabel.value,
-                        //   ),
-                        // ),
-                        // Add more cards here if needed
                       ],
                     );
                   });
                 },
               ),
+
+              const SizedBox(height: 24),
+
+              // Chart Section
+              // Obx(() {
+              //   final isLoadingChart = homeController.isLoadingChart.value;
+              //   if (isLoadingChart) {
+              //     return Shimmer.fromColors(
+              //       baseColor: Colors.grey[300]!,
+              //       highlightColor: Colors.grey[100]!,
+              //       child: Container(
+              //         height: 300,
+              //         decoration: BoxDecoration(
+              //           color: Colors.white,
+              //           borderRadius: BorderRadius.circular(20),
+              //         ),
+              //       ),
+              //     );
+              //   }
+              //   return RevenueChartCard(
+              //     current: homeController.revenueCurrent.toList(),
+              //     previous: homeController.revenuePrevious.toList(),
+              //     currentLabel: homeController.currentLabel.value,
+              //     previousLabel: homeController.previousLabel.value,
+              //     graphData: homeController.graphApiRes.value,
+              //   );
+              // }),
+
+              // const SizedBox(height: 24),
             ],
           ),
         ),

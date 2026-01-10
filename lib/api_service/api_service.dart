@@ -148,6 +148,162 @@ class RestRequestProvider extends GetConnect {
     }
   }
 
+  /// Safely shows an error snackbar, handling cases where Get context might not be available
+  void _showErrorSnackbar(String message) {
+    try {
+      final errorMessage = message.isNotEmpty ? message : "An error occurred";
+      log("🔴 Showing error snackbar: $errorMessage");
+
+      // Add a small delay to ensure UI is ready, then show snackbar
+      Future.delayed(Duration(milliseconds: 100), () {
+        _showSnackbarInternal(errorMessage);
+      });
+    } catch (e) {
+      // If scheduling fails, try to show immediately
+      try {
+        final errorMessage = message.isNotEmpty ? message : "An error occurred";
+        _showSnackbarInternal(errorMessage);
+      } catch (e2) {
+        print("❌ Failed to show snackbar: $e2. Error message: $message");
+        log("❌ Failed to show snackbar: $e2. Error message: $message");
+      }
+    }
+  }
+
+  /// Internal method to show snackbar with multiple fallback strategies
+  void _showSnackbarInternal(String errorMessage) {
+    // Try ScaffoldMessenger first (most reliable, works with Stack overlays)
+    try {
+      final scaffoldState = rootScaffoldMessengerKey.currentState;
+      if (scaffoldState != null && scaffoldState.mounted) {
+        scaffoldState.showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.error, color: Colors.white),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    errorMessage,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 3),
+            behavior: SnackBarBehavior.floating,
+            margin: EdgeInsets.all(16.0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            elevation: 6,
+            dismissDirection: DismissDirection.horizontal,
+          ),
+        );
+        log(
+          "✅ Snackbar shown via ScaffoldMessenger (rootScaffoldMessengerKey)",
+        );
+        return;
+      } else {
+        log(
+          "⚠️ ScaffoldMessenger currentState is null or not mounted. State: $scaffoldState",
+        );
+      }
+    } catch (scaffoldError) {
+      log("⚠️ ScaffoldMessenger snackbar failed: $scaffoldError");
+    }
+
+    // Try using Get.context if available
+    try {
+      final context = Get.context;
+      if (context != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.error, color: Colors.white),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    errorMessage,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 3),
+            behavior: SnackBarBehavior.floating,
+            margin: EdgeInsets.all(16.0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            elevation: 6,
+          ),
+        );
+        log("✅ Snackbar shown via ScaffoldMessenger (Get.context)");
+        return;
+      }
+    } catch (contextError) {
+      log("⚠️ ScaffoldMessenger via Get.context failed: $contextError");
+    }
+
+    // Fallback: Try Get.snackbar
+    try {
+      Get.snackbar(
+        "Error",
+        errorMessage,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        borderRadius: 8,
+        margin: EdgeInsets.all(16.0),
+        icon: Icon(Icons.error, color: Colors.white),
+        duration: Duration(seconds: 3),
+        isDismissible: true,
+        dismissDirection: DismissDirection.horizontal,
+        forwardAnimationCurve: Curves.easeOutBack,
+        shouldIconPulse: true,
+        maxWidth: 400,
+      );
+      log("✅ Snackbar shown via Get.snackbar");
+      return;
+    } catch (getError) {
+      log("⚠️ Get.snackbar failed: $getError");
+    }
+
+    // Fallback: Try Get.showSnackbar
+    try {
+      Get.showSnackbar(
+        GetSnackBar(
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          borderRadius: 8,
+          margin: EdgeInsets.all(16.0),
+          icon: Icon(Icons.error, color: Colors.white),
+          duration: Duration(seconds: 3),
+          message: errorMessage,
+        ),
+      );
+      log("✅ Snackbar shown via Get.showSnackbar");
+      return;
+    } catch (getError2) {
+      log("⚠️ Get.showSnackbar failed: $getError2");
+    }
+
+    // Last resort: print to console
+    print("❌ ERROR: $errorMessage");
+  }
+
   // Future<ResponseModel> doGet(
   //     {required String endPoint,
   //     dynamic requestData,
@@ -550,9 +706,13 @@ class RestRequestProvider extends GetConnect {
       if (token != null) {
         if (isTokenExpired(expiration)) {
           print("🔄 Token expired. Logging out...");
+          List<Error> tokenErrors = [
+            Error(message: "Token expired. Please login again."),
+          ];
+          _showErrorSnackbar(tokenErrors.first.message ?? "Token expired");
           _handleExpiredToken();
           changeRequestStatus(requestStatus, RequestStatus.failed);
-          return ResponseModel.withError([Error(message: "Token expired")]);
+          return ResponseModel.withError(tokenErrors);
         }
       }
       // Handle query params
@@ -577,6 +737,19 @@ class RestRequestProvider extends GetConnect {
       print("🔻 Status Code: ${response.statusCode}");
       print("🔻 Raw Body: ${response.body}");
 
+      // Check for connection errors first
+      if (response.hasError) {
+        if (response.status.connectionError && onConnectionError != null) {
+          List<Error> connErrors = [
+            Error(message: "Please check your internet connection"),
+          ];
+          _showErrorSnackbar(connErrors.first.message ?? "Connection error");
+          onConnectionError(connErrors);
+          changeRequestStatus(requestStatus, RequestStatus.failed);
+          return ResponseModel.withError(connErrors);
+        }
+      }
+
       // Try to parse body safely
       dynamic responseBody;
       try {
@@ -588,9 +761,10 @@ class RestRequestProvider extends GetConnect {
         responseBody = response.body;
       }
 
-      // Check success
-      if (response.isOk &&
-          (response.statusCode == 200 || response.statusCode == 201)) {
+      log("📥 Response Status: ${response.statusCode}, Body: $responseBody");
+
+      // Check success - check status code directly
+      if (response.statusCode == 200 || response.statusCode == 201) {
         log("✅ success.response: $responseBody");
 
         // Normalize similar to GET: ensure callers receive a Map when possible
@@ -607,57 +781,84 @@ class RestRequestProvider extends GetConnect {
         changeRequestStatus(requestStatus, RequestStatus.success);
         return ResponseModel.withSuccess(payload);
       } else {
-        String errorMessage = "Unknown error";
-        BaseResponse baseResponse = BaseResponse.fromJson(responseBody);
+        // Handle error response
         List<Error> errors = [];
+        String errorMsg = "Unknown error occurred";
 
-        if (baseResponse.error != null && baseResponse.error!.isNotEmpty) {
-          errors = baseResponse.error!;
-        } else if (baseResponse.message != null &&
-            baseResponse.message!.isNotEmpty) {
-          errors = [Error(message: baseResponse.message!)];
-        } else {
-          errors = [Error(message: "Unknown Error")];
+        try {
+          // Try to parse as BaseResponse
+          BaseResponse baseResponse = BaseResponse.fromJson(responseBody);
+
+          if (baseResponse.error != null && baseResponse.error!.isNotEmpty) {
+            errors = baseResponse.error!;
+            errorMsg = errors.first.message ?? "Unknown error occurred";
+          } else if (baseResponse.message != null &&
+              baseResponse.message!.isNotEmpty) {
+            errorMsg = baseResponse.message!;
+            errors = [Error(message: errorMsg)];
+          } else {
+            // Fallback: check responseBody directly for message
+            if (responseBody is Map) {
+              if (responseBody['message'] != null) {
+                errorMsg = responseBody['message'].toString();
+                errors = [Error(message: errorMsg)];
+              } else if (responseBody['error'] != null) {
+                errorMsg = responseBody['error'].toString();
+                errors = [Error(message: errorMsg)];
+              }
+            }
+          }
+        } catch (parseError) {
+          // If BaseResponse parsing fails, try to extract error from responseBody directly
+          log("⚠️ Failed to parse BaseResponse: $parseError");
+          if (responseBody is Map) {
+            if (responseBody['message'] != null) {
+              errorMsg = responseBody['message'].toString();
+              errors = [Error(message: errorMsg)];
+            } else if (responseBody['error'] != null) {
+              errorMsg = responseBody['error'].toString();
+              errors = [Error(message: errorMsg)];
+            } else {
+              errorMsg = "Error: ${response.statusCode}";
+              errors = [Error(message: errorMsg)];
+            }
+          } else {
+            errorMsg =
+                "Error: ${response.statusCode} - ${responseBody.toString()}";
+            errors = [Error(message: errorMsg)];
+          }
         }
-        Get.showSnackbar(
-          GetSnackBar(
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.red,
-            borderRadius: 8,
-            margin: EdgeInsets.all(16.0),
-            icon: Icon(Icons.error, color: Colors.white),
-            duration: Duration(seconds: 3),
-            message: errors.first.message ?? '',
-          ),
-        );
+
+        // Ensure we have at least one error
+        if (errors.isEmpty) {
+          errors = [Error(message: errorMsg)];
+        }
+
+        log("❌ Error: $errorMsg");
+        _showErrorSnackbar(errorMsg);
 
         onError(errors, response.statusCode);
         changeRequestStatus(requestStatus, RequestStatus.failed);
-        return ResponseModel.withError([Error(message: errorMessage)]);
+        return ResponseModel.withError(errors);
       }
     } catch (e) {
       print("❌ Exception: ${e.toString()}");
       List<Error> errors = [];
+      String errorMessage;
       if (e is TimeoutException) {
-        errors.add(
-          Error(message: "The connection has timed out after 60 seconds."),
-        );
+        errorMessage = "The connection has timed out after 60 seconds.";
+        errors.add(Error(message: errorMessage));
+      } else if (e.toString().contains("SocketException") ||
+          e.toString().contains("Failed host lookup")) {
+        errorMessage = "Please check your internet connection";
+        errors.add(Error(message: errorMessage));
       } else {
-        errors.add(Error(message: "Unexpected Error: ${e.toString()}"));
+        errorMessage = "An error occurred: ${e.toString()}";
+        errors.add(Error(message: errorMessage));
       }
       print("❌ Exception: ${e.toString()}");
 
-      Get.showSnackbar(
-        GetSnackBar(
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.red,
-          borderRadius: 8,
-          margin: EdgeInsets.all(16.0),
-          icon: Icon(Icons.error, color: Colors.white),
-          duration: Duration(seconds: 3),
-          message: "Something went wrong",
-        ),
-      );
+      _showErrorSnackbar(errorMessage);
 
       onError(errors, null);
       changeRequestStatus(requestStatus, RequestStatus.failed);

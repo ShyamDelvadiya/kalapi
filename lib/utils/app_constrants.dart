@@ -15,6 +15,7 @@ class ApiEndPoint {
   static const checkOut = "$apiBaseUrl/Order/SaveOrder";
   static const getOrderList = "$apiBaseUrl/Order/GetOrderList";
   static const getOrderDetails = "$apiBaseUrl/Order/GetOrderDetails";
+  static const getOrderChartData = "$apiBaseUrl/User/GetOrderChartData";
 }
 
 /// App-wide external links
