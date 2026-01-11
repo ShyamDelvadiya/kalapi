@@ -465,7 +465,7 @@ class _OrderViewState extends State<OrderView> {
           // Date Range Display
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(vertical: 16),
             decoration: BoxDecoration(
               color: AppColors.primaryColorStudent(context),
               borderRadius: const BorderRadius.vertical(
@@ -511,12 +511,23 @@ class _OrderViewState extends State<OrderView> {
                   child: Obx(() {
                     return Row(
                       children:
-                          orderController.orderStatuses.map((status) {
+                          orderController.orderStatuses.asMap().entries.map((
+                            entry,
+                          ) {
+                            final index = entry.key;
+                            final status = entry.value;
                             final isSelected =
                                 orderController.orderStatusId.value ==
                                 status['id'];
+                            final isFirst = index == 0;
+                            final isLast =
+                                index ==
+                                orderController.orderStatuses.length - 1;
                             return Padding(
-                              padding: const EdgeInsets.only(right: 8.0),
+                              padding: EdgeInsets.only(
+                                left: isFirst ? 8.0 : 0.0,
+                                right: 8.0,
+                              ),
                               child: ChoiceChip(
                                 label: Text(
                                   status['name'],

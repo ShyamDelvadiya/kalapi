@@ -118,8 +118,11 @@ class HomeController extends GetxController {
     required String startDate,
     required String endDate,
     Function()? onSuccess,
+    bool showLoader = true,
   }) async {
-    isLoadingChart.value = true;
+    if (showLoader) {
+      isLoadingChart.value = true;
+    }
     try {
       await apiService.doPost(
         requestStatus: requestStatus,
@@ -173,7 +176,7 @@ class HomeController extends GetxController {
                     sortedData.map((d) => d.value ?? 0.0).toList();
                 revenueCurrent.assignAll(currentData);
                 log(
-                  "Current data points: ${currentData.length}, values: ${currentData.take(5).toList()}",
+                  "Current data points: ${currentData.length}, values: $currentData",
                 );
               } else {
                 // Clear current data if empty
@@ -181,6 +184,7 @@ class HomeController extends GetxController {
                 log("No current data available");
               }
 
+              // Handle second series (previous year) if available
               if (series.length > 1 &&
                   series[1].data != null &&
                   series[1].data!.isNotEmpty) {
@@ -196,12 +200,14 @@ class HomeController extends GetxController {
                     sortedData.map((d) => d.value ?? 0.0).toList();
                 revenuePrevious.assignAll(previousData);
                 log(
-                  "Previous data points: ${previousData.length}, values: ${previousData.take(5).toList()}",
+                  "Previous data points: ${previousData.length}, values: $previousData",
                 );
               } else {
-                // Clear previous data if not available
+                // Clear previous data if not available (single series case)
                 revenuePrevious.clear();
-                log("No previous data available");
+                log(
+                  "No previous data available - displaying single series only",
+                );
               }
             } else {
               // Clear all data if chart is null or empty
@@ -227,7 +233,9 @@ class HomeController extends GetxController {
     } catch (e) {
       log("Chart API call failed: $e");
     } finally {
-      isLoadingChart.value = false;
+      if (showLoader) {
+        isLoadingChart.value = false;
+      }
     }
   }
 
@@ -251,18 +259,19 @@ class HomeController extends GetxController {
           dashboardResponseModel.value = DashboardApiRes.fromJson(responseData);
 
           // If dates are provided, fetch chart data
-          // if (startDate != null && endDate != null && branchId != null) {
-          //   final branchIdInt = int.tryParse(branchId) ?? 0;
-          //   final startDateStr = DateFormat('yyyy-MM-dd').format(startDate);
-          //   final endDateStr = DateFormat('yyyy-MM-dd').format(endDate);
+          if (startDate != null && endDate != null && branchId != null) {
+            final branchIdInt = int.tryParse(branchId) ?? 0;
+            final startDateStr = DateFormat('yyyy-MM-dd').format(startDate);
+            final endDateStr = DateFormat('yyyy-MM-dd').format(endDate);
 
-          //   // Call chart data API
-          //   await getOrderChartData(
-          //     branchId: branchIdInt,
-          //     startDate: startDateStr,
-          //     endDate: endDateStr,
-          //   );
-          // }
+            // Call chart data API without showing separate loader
+            await getOrderChartData(
+              branchId: branchIdInt,
+              startDate: startDateStr,
+              endDate: endDateStr,
+              showLoader: false,
+            );
+          }
 
           if (onSuccess != null) onSuccess();
         },

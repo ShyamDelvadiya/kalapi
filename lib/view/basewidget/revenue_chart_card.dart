@@ -196,7 +196,7 @@ class RevenueChartCard extends StatelessWidget {
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
-              reservedSize: 40,
+              reservedSize: 50,
               interval: xAxisInterval.toDouble(),
               getTitlesWidget: (value, meta) {
                 final i = value.toInt();
@@ -216,17 +216,25 @@ class RevenueChartCard extends StatelessWidget {
                   label = '${i + 1}';
                 }
 
+                // Rotate text if there are many data points
+                final shouldRotate = maxLength > 10;
+
                 return Padding(
                   padding: const EdgeInsets.only(top: 8.0),
-                  child: Text(
-                    label,
-                    style: GoogleFonts.outfit(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white.withOpacity(0.9),
+                  child: Transform.rotate(
+                    angle:
+                        shouldRotate ? -0.5 : 0, // Rotate ~30 degrees if needed
+                    child: Text(
+                      label,
+                      style: GoogleFonts.outfit(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white.withOpacity(0.9),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.visible,
+                      textAlign: TextAlign.center,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                   ),
                 );
               },
@@ -366,12 +374,19 @@ class RevenueChartCard extends StatelessWidget {
       if (d.date == null) return '';
       try {
         final date = DateTime.parse(d.date!);
-        if (dataPoints.length <= 7) {
-          return DateFormat('MMM dd').format(date);
-        } else if (dataPoints.length <= 14) {
-          return DateFormat('dd/MM').format(date);
+        // More compact formatting based on data length
+        if (dataPoints.length > 20) {
+          // For many points, show just day number
+          return DateFormat('d').format(date);
+        } else if (dataPoints.length > 10) {
+          // For medium datasets, show day/month
+          return DateFormat('d/M').format(date);
+        } else if (dataPoints.length > 7) {
+          // For smaller datasets, show abbreviated month and day
+          return DateFormat('MMM d').format(date);
         } else {
-          return DateFormat('dd').format(date);
+          // For very small datasets, show full date
+          return DateFormat('MMM dd').format(date);
         }
       } catch (e) {
         if (d.date!.length >= 10) {

@@ -34,18 +34,20 @@ class _HomeViewState extends State<HomeView> {
     _startDate = _endDate!.subtract(Duration(days: 30));
     homeController.startDate = _startDate;
     homeController.endDate = _endDate;
+    // branchDetailsApiCall will internally call homeApiCall which loads chart data
     homeController.branchDetailsApiCall(branchId: branchId);
-    // Load chart data with default dates
-    _loadChartData();
   }
 
   void _loadChartData() {
     if (_startDate != null && _endDate != null && branchId != null) {
       // Call homeApiCall with dates to fetch both dashboard and chart data
-      homeController.homeApiCall(
-        branchId: branchId,
-        startDate: _startDate,
-        endDate: _endDate,
+      final branchIdInt = int.tryParse(branchId!) ?? 0;
+      final startDateStr = DateFormat('yyyy-MM-dd').format(_startDate!);
+      final endDateStr = DateFormat('yyyy-MM-dd').format(_endDate!);
+      homeController.getOrderChartData(
+        branchId: branchIdInt,
+        startDate: startDateStr,
+        endDate: endDateStr,
       );
     }
   }
@@ -430,11 +432,8 @@ class _HomeViewState extends State<HomeView> {
       body: RefreshIndicator(
         color: AppColors.primaryColorStudent(context),
         onRefresh: () async {
+          // branchDetailsApiCall will internally reload chart data
           homeController.branchDetailsApiCall(branchId: branchId ?? '0');
-          // Reload chart data with current dates
-          if (_startDate != null && _endDate != null) {
-            _loadChartData();
-          }
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -642,30 +641,127 @@ class _HomeViewState extends State<HomeView> {
 
               const SizedBox(height: 24),
 
+              // Date Filter Section
+              Obx(() {
+                final isLoading = homeController.isLoading.value;
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Chart Filters',
+                      style: GoogleFonts.outfit(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.titleColor(context),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    if (isLoading)
+                      Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: Container(
+                          height: 120,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                      )
+                    else
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.date_range_outlined,
+                                  color: AppColors.primaryColorStudent(context),
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Select Date Range',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.titleColor(context),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _buildDatePickerButton(
+                                    context,
+                                    label: 'Start Date',
+                                    date: _startDate,
+                                    onTap: () => _selectStartDate(context),
+                                    isRequired: true,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: _buildDatePickerButton(
+                                    context,
+                                    label: 'End Date',
+                                    date: _endDate,
+                                    onTap: () => _selectEndDate(context),
+                                    isRequired: true,
+                                    isDisabled: _startDate == null,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                );
+              }),
+
+              const SizedBox(height: 24),
+
               // Chart Section
-              // Obx(() {
-              //   final isLoadingChart = homeController.isLoadingChart.value;
-              //   if (isLoadingChart) {
-              //     return Shimmer.fromColors(
-              //       baseColor: Colors.grey[300]!,
-              //       highlightColor: Colors.grey[100]!,
-              //       child: Container(
-              //         height: 300,
-              //         decoration: BoxDecoration(
-              //           color: Colors.white,
-              //           borderRadius: BorderRadius.circular(20),
-              //         ),
-              //       ),
-              //     );
-              //   }
-              //   return RevenueChartCard(
-              //     current: homeController.revenueCurrent.toList(),
-              //     previous: homeController.revenuePrevious.toList(),
-              //     currentLabel: homeController.currentLabel.value,
-              //     previousLabel: homeController.previousLabel.value,
-              //     graphData: homeController.graphApiRes.value,
-              //   );
-              // }),
+              Obx(() {
+                final isLoading = homeController.isLoading.value;
+                if (isLoading) {
+                  return Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Container(
+                      height: 300,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                  );
+                }
+                return RevenueChartCard(
+                  current: homeController.revenueCurrent.toList(),
+                  previous: homeController.revenuePrevious.toList(),
+                  currentLabel: homeController.currentLabel.value,
+                  previousLabel: homeController.previousLabel.value,
+                  graphData: homeController.graphApiRes.value,
+                );
+              }),
 
               // const SizedBox(height: 24),
             ],
