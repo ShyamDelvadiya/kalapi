@@ -6,19 +6,87 @@ import 'package:kalapi/view/pages/product/controller/product_controller.dart';
 import 'package:kalapi/view/pages/home/controller/home_controller.dart';
 import 'package:kalapi/view/pages/product/widget/common_quntity.dart';
 
-class CartCheckoutView extends StatelessWidget {
+class CartCheckoutView extends StatefulWidget {
   const CartCheckoutView({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final ProductController productController = Get.find<ProductController>();
+  State<CartCheckoutView> createState() => _CartCheckoutViewState();
+}
 
+class _CartCheckoutViewState extends State<CartCheckoutView> {
+  final ProductController productController = Get.find<ProductController>();
+
+  @override
+  void initState() {
+    super.initState();
     // Calculate initial totals when screen loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       productController.calculateLocalSubtotal();
       // productController.fetchTotalFromApi();
     });
+  }
 
+  void _showQuantityDialog(int productId, int currentQty) {
+    final textController = TextEditingController(text: currentQty.toString());
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            'Enter Quantity',
+            style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
+          ),
+          content: TextField(
+            controller: textController,
+            keyboardType: TextInputType.number,
+            autofocus: true,
+            decoration: InputDecoration(
+              hintText: 'Quantity',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 8,
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Cancel',
+                style: GoogleFonts.outfit(color: Colors.grey),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final val = int.tryParse(textController.text);
+                if (val != null && val >= 0) {
+                  productController.setCartQuantity(productId, val);
+                  productController.calculateLocalSubtotal();
+                }
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryColorStudent(context),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text(
+                'Set',
+                style: GoogleFonts.outfit(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backGroundColor(context),
       appBar: AppBar(
@@ -189,6 +257,8 @@ class CartCheckoutView extends StatelessWidget {
                         // Quantity Controls
                         QuantityButton(
                           quantity: qty,
+                          onQuantityTap:
+                              () => _showQuantityDialog(productId, qty),
                           onIncrement: () async {
                             productController.setCartQuantity(
                               productId,

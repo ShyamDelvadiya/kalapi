@@ -7,6 +7,7 @@ class QuantityButton extends StatelessWidget {
   final Color bgColor;
   final Color iconColor;
   final Color textColor;
+  final VoidCallback? onQuantityTap;
 
   const QuantityButton({
     super.key,
@@ -16,6 +17,7 @@ class QuantityButton extends StatelessWidget {
     this.bgColor = const Color(0x22FFFFFF),
     this.iconColor = Colors.white,
     this.textColor = Colors.white,
+    this.onQuantityTap,
   });
 
   @override
@@ -32,15 +34,18 @@ class QuantityButton extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 6),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(
-            color: bgColor,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(
-            "$quantity",
-            style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
+        GestureDetector(
+          onTap: onQuantityTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: bgColor,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              "$quantity",
+              style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
+            ),
           ),
         ),
         const SizedBox(width: 6),

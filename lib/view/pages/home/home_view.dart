@@ -237,10 +237,11 @@ class _HomeViewState extends State<HomeView> {
     required IconData icon,
   }) {
     final amountValue = amount is num ? amount.toDouble() : 0.0;
-    final formattedAmount =
-        amountValue >= 1000
-            ? '₹${(amountValue / 1000).toStringAsFixed(1)}k'
-            : '₹${amountValue.toStringAsFixed(0)}';
+    final formattedAmount = NumberFormat.currency(
+      locale: 'en_IN',
+      symbol: '₹',
+      decimalDigits: 0,
+    ).format(amountValue);
 
     return Container(
       padding: const EdgeInsets.all(14),

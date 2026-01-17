@@ -130,6 +130,64 @@ class _ProductViewState extends State<ProductView> {
     }
   }
 
+  void _showQuantityDialog(int productId, int currentQty) {
+    final textController = TextEditingController(text: currentQty.toString());
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            'Enter Quantity',
+            style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
+          ),
+          content: TextField(
+            controller: textController,
+            keyboardType: TextInputType.number,
+            autofocus: true,
+            decoration: InputDecoration(
+              hintText: 'Quantity',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 8,
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Cancel',
+                style: GoogleFonts.outfit(color: Colors.grey),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final val = int.tryParse(textController.text);
+                if (val != null && val >= 0) {
+                  productController.setCartQuantity(productId, val);
+                }
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryColorStudent(context),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text(
+                'Set',
+                style: GoogleFonts.outfit(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -559,6 +617,11 @@ class _ProductViewState extends State<ProductView> {
                                     fit: BoxFit.scaleDown,
                                     child: QuantityButton(
                                       quantity: qty == 0 ? 1 : qty,
+                                      onQuantityTap:
+                                          () => _showQuantityDialog(
+                                            id,
+                                            qty == 0 ? 1 : qty,
+                                          ),
                                       onIncrement: () {
                                         final newQty =
                                             (productController
