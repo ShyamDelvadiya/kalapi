@@ -536,24 +536,20 @@ class _HomeViewState extends State<HomeView> {
                           dashboard.currentMonthOrderAmount ?? 0.0;
                       final totalAmount = dashboard.totalOrderAmount ?? 0.0;
 
-                      return Row(
+                      return Column(
                         children: [
-                          Expanded(
-                            child: _buildAmountCard(
-                              context,
-                              label: 'This Month',
-                              amount: currentMonthAmount,
-                              icon: Icons.calendar_today_outlined,
-                            ),
+                          _buildAmountCard(
+                            context,
+                            label: 'Current Month Order Value',
+                            amount: currentMonthAmount,
+                            icon: Icons.calendar_today_outlined,
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _buildAmountCard(
-                              context,
-                              label: 'Total Revenue',
-                              amount: totalAmount,
-                              icon: Icons.account_balance_wallet_outlined,
-                            ),
+                          const SizedBox(height: 12),
+                          _buildAmountCard(
+                            context,
+                            label: 'Total Order Value',
+                            amount: totalAmount,
+                            icon: Icons.account_balance_wallet_outlined,
                           ),
                         ],
                       );

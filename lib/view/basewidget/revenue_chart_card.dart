@@ -69,9 +69,9 @@ class RevenueChartCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Revenue Chart',
+                      'Order Value Chart',
                       style: GoogleFonts.outfit(
-                        fontSize: 20,
+                        fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
