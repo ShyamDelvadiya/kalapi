@@ -8,6 +8,7 @@ class BranchDetailsApiRes {
   String? phoneNumber;
   String? emailAppPassword;
   bool? isInternalBranch;
+  bool? isPBBranch;
   String? systemInsertedDate;
   String? updatedDate;
   int? userId;
@@ -22,6 +23,7 @@ class BranchDetailsApiRes {
     this.phoneNumber,
     this.emailAppPassword,
     this.isInternalBranch,
+    this.isPBBranch,
     this.systemInsertedDate,
     this.updatedDate,
     this.userId,
@@ -37,6 +39,7 @@ class BranchDetailsApiRes {
     phoneNumber = json['phoneNumber'];
     emailAppPassword = json['emailAppPassword'];
     isInternalBranch = json['isInternalBranch'];
+    isPBBranch = json['isPBBranch'];
     systemInsertedDate = json['systemInsertedDate'];
     updatedDate = json['updatedDate'];
     userId = json['userId'];
@@ -53,6 +56,7 @@ class BranchDetailsApiRes {
     data['phoneNumber'] = this.phoneNumber;
     data['emailAppPassword'] = this.emailAppPassword;
     data['isInternalBranch'] = this.isInternalBranch;
+    data['isPBBranch'] = this.isPBBranch;
     data['systemInsertedDate'] = this.systemInsertedDate;
     data['updatedDate'] = this.updatedDate;
     data['userId'] = this.userId;

@@ -156,12 +156,16 @@ class RevenueChartCard extends StatelessWidget {
 
     // Calculate Y-axis max
     final allValues = [...current, ...previous];
-    final maxValue =
+    double maxValue =
         allValues.isNotEmpty
             ? (allValues.reduce((a, b) => a > b ? a : b) * 1.15)
                 .ceil()
                 .toDouble()
             : 100.0;
+    // Always ensure maxValue is at least 100 to avoid zero-interval error
+    if (maxValue <= 0) {
+      maxValue = 100.0;
+    }
     final minValue = 0.0;
 
     // Get date labels
