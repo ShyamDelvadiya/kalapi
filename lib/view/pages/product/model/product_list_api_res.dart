@@ -35,6 +35,7 @@ class ProductList {
   dynamic gstSlabs;
   double? cgst;
   double? sgst;
+  double? pbPrice;
   dynamic basePrice;
   dynamic internalPrice;
   dynamic costPrice;
@@ -52,6 +53,7 @@ class ProductList {
     this.gstSlabs,
     this.cgst,
     this.sgst,
+    this.pbPrice,
     this.basePrice,
     this.internalPrice,
     this.costPrice,
@@ -71,6 +73,7 @@ class ProductList {
     cgst = json['cgst'];
     sgst = json['sgst'];
     basePrice = json['basePrice'];
+    pbPrice = json['pbPrice'];
     internalPrice = json['internalPrice'];
     costPrice = json['costPrice'];
     mrp = json['mrp'];
@@ -90,6 +93,7 @@ class ProductList {
     data['cgst'] = this.cgst;
     data['sgst'] = this.sgst;
     data['basePrice'] = this.basePrice;
+    data['pbPrice'] = this.pbPrice;
     data['internalPrice'] = this.internalPrice;
     data['costPrice'] = this.costPrice;
     data['mrp'] = this.mrp;

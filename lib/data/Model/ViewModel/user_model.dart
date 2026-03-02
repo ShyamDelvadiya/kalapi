@@ -7,6 +7,7 @@ class UserModel {
   bool? isBranch;
   int? branchID;
   bool? isInternalBranch;
+  bool? isPBBranch;
   DateTime? tokenExpirationTime;
   String? token;
 
@@ -21,6 +22,7 @@ class UserModel {
     this.isInternalBranch,
     this.tokenExpirationTime,
     this.token,
+    this.isPBBranch,
   });
 
   factory UserModel.fromJson(dynamic json) {
@@ -61,6 +63,12 @@ class UserModel {
               : (json['isBranch'] != null
                   ? json['isBranch'].toString().toLowerCase() == 'true'
                   : null),
+      isPBBranch:
+          json['isPBBranch'] is bool
+              ? json['isPBBranch']
+              : (json['isPBBranch'] != null
+                  ? json['isPBBranch'].toString().toLowerCase() == 'true'
+                  : null),
       branchID:
           json['branchID'] is int
               ? json['branchID']
@@ -90,6 +98,7 @@ class UserModel {
     map['isInternalBranch'] = isInternalBranch;
     map['tokenExpirationTime'] = tokenExpirationTime?.toIso8601String();
     map['token'] = token;
+    map['isPBBranch'] = isPBBranch;
     return map;
   }
 

@@ -291,13 +291,15 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                     const SizedBox(height: 20),
                     Obx(() {
                       final price =
-                          isInternalBranch.value
+                          isPBBranch.value
+                              ? (product?.pbPrice ?? 0)
+                              : isInternalBranch.value
                               ? (product?.internalPrice ??
                                   product?.basePrice ??
                                   0)
                               : (product?.basePrice ?? 0);
                       final priceLabel =
-                          isInternalBranch.value ? 'Price' : 'Price';
+                          isPBBranch.value ? 'PB Price' : 'Price';
                       return Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
@@ -354,9 +356,13 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                   ),
                   _buildInfoRow(
                     context: context,
-                    label: 'Price',
+                    label: isPBBranch.value ? 'PB Price' : 'Price',
                     value:
-                        '₹${isInternalBranch.value ? (product?.internalPrice ?? product?.basePrice ?? 0) : (product?.basePrice ?? 0)}',
+                        '₹${isPBBranch.value
+                            ? (product?.pbPrice ?? 0)
+                            : isInternalBranch.value
+                            ? (product?.internalPrice ?? product?.basePrice ?? 0)
+                            : (product?.basePrice ?? 0)}',
                     icon: Icons.currency_rupee,
                   ),
                 ],

@@ -11,6 +11,7 @@ import 'package:kalapi/view/pages/home/model/graph_api_res.dart';
 import 'package:kalapi/view/pages/home/model/hone_res.dart';
 
 RxBool isInternalBranch = false.obs;
+RxBool isPBBranch = false.obs;
 
 class HomeController extends GetxController {
   var isLoading = false.obs;
@@ -320,8 +321,11 @@ class HomeController extends GetxController {
 
           isInternalBranch.value =
               branchDetailsResponseModel.value.isInternalBranch ?? false;
+          isPBBranch.value =
+              branchDetailsResponseModel.value.isPBBranch ?? false;
           log('---- branch details -- ${branchDetailsResponseModel.value}');
           log('---- isInternalBranch -- ${isInternalBranch.value}');
+          log('---- isPBBranch -- ${isPBBranch.value}');
 
           // Call homeApiCall with dates if available
           homeApiCall(

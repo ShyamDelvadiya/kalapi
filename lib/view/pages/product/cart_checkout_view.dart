@@ -221,7 +221,9 @@ class _CartCheckoutViewState extends State<CartCheckoutView> {
                                   ),
                                   Obx(() {
                                     final label =
-                                        isInternalBranch.value
+                                        isPBBranch.value
+                                            ? 'PB Price'
+                                            : isInternalBranch.value
                                             ? 'Internal'
                                             : 'Base';
                                     return Container(

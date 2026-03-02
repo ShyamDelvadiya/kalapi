@@ -117,7 +117,9 @@ class ProductController extends GetxController {
           }
 
           unitPrice =
-              isInternalBranch.value
+              isPBBranch.value
+                  ? (product.pbPrice ?? 0).toDouble()
+                  : isInternalBranch.value
                   ? ((internalNum ?? baseNum) ?? 0).toDouble()
                   : (baseNum ?? 0).toDouble();
         }
@@ -295,9 +297,11 @@ class ProductController extends GetxController {
         // Find product in items list
         final product = items.firstWhereOrNull((p) => p.productId == productId);
         if (product != null) {
-          // Use internalPrice for internal branches, basePrice otherwise
+          // Use pbPrice for PB branches, internalPrice for internal branches, basePrice otherwise
           final price =
-              isInternalBranch.value
+              isPBBranch.value
+                  ? (product.pbPrice ?? 0.0)
+                  : isInternalBranch.value
                   ? (product.internalPrice?.toDouble() ??
                       product.basePrice?.toDouble() ??
                       0.0)
@@ -322,9 +326,11 @@ class ProductController extends GetxController {
         // Find product in items list
         final product = items.firstWhereOrNull((p) => p.productId == productId);
         if (product != null) {
-          // Use internalPrice for internal branches, basePrice otherwise
+          // Use pbPrice for PB branches, internalPrice for internal branches, basePrice otherwise
           final price =
-              isInternalBranch.value
+              isPBBranch.value
+                  ? product.pbPrice
+                  : isInternalBranch.value
                   ? (product.internalPrice ?? product.basePrice)
                   : product.basePrice;
           cartItems.add({

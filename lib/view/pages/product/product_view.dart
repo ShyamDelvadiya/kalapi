@@ -658,7 +658,9 @@ class _ProductViewState extends State<ProductView> {
                                 );
                               }
                               final price =
-                                  isInternalBranch.value
+                                  isPBBranch.value
+                                      ? (item.pbPrice ?? 0)
+                                      : isInternalBranch.value
                                       ? (item.internalPrice ??
                                           item.basePrice ??
                                           0)
