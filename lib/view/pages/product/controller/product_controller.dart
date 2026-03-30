@@ -31,7 +31,7 @@ class ProductController extends GetxController {
   final RxString searchQuery = ''.obs;
 
   // Cart / selection shared state so different screens can read/write quantities
-  final RxMap<int, int> cartQuantities = <int, int>{}.obs;
+  final RxMap<int, double> cartQuantities = <int, double>{}.obs;
   final RxMap<int, bool> cartSelected = <int, bool>{}.obs;
 
   // Reactive calculation properties
@@ -46,7 +46,7 @@ class ProductController extends GetxController {
   // Debounced API calls were removed so totals are calculated only at checkout.
 
   /// Set quantity for a product in the shared cart state. If qty <= 0 the product is removed.
-  void setCartQuantity(int productId, int qty) {
+  void setCartQuantity(int productId, double qty) {
     if (qty <= 0) {
       cartQuantities.remove(productId);
       cartSelected.remove(productId);
@@ -69,7 +69,7 @@ class ProductController extends GetxController {
     if (!(cartSelected[productId] ?? false)) {
       cartQuantities.remove(productId);
     } else {
-      cartQuantities[productId] = cartQuantities[productId] ?? 1;
+      cartQuantities[productId] = cartQuantities[productId] ?? 1.0;
     }
     cartSelected.refresh();
     cartQuantities.refresh();
@@ -96,7 +96,7 @@ class ProductController extends GetxController {
     for (final entry in cartSelected.entries) {
       if (entry.value == true) {
         final pid = entry.key;
-        final qty = cartQuantities[pid] ?? 1;
+        final qty = cartQuantities[pid] ?? 1.0;
         // Attach chosen unit price for API (internal vs base)
         final product = items.firstWhereOrNull((p) => p.productId == pid);
         double unitPrice = 0.0;
@@ -292,7 +292,7 @@ class ProductController extends GetxController {
     for (final entry in cartSelected.entries) {
       if (entry.value == true) {
         final productId = entry.key;
-        final quantity = cartQuantities[productId] ?? 0;
+        final quantity = cartQuantities[productId] ?? 0.0;
 
         // Find product in items list
         final product = items.firstWhereOrNull((p) => p.productId == productId);
@@ -321,7 +321,7 @@ class ProductController extends GetxController {
     for (final entry in cartSelected.entries) {
       if (entry.value == true) {
         final productId = entry.key;
-        final quantity = cartQuantities[productId] ?? 0;
+        final quantity = cartQuantities[productId] ?? 0.0;
 
         // Find product in items list
         final product = items.firstWhereOrNull((p) => p.productId == productId);
@@ -339,6 +339,7 @@ class ProductController extends GetxController {
             'weight': product.weight,
             'price': price,
             'quantity': quantity,
+            'categoryId': product.categoryId,
           });
         }
       }

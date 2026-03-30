@@ -26,8 +26,12 @@ class _CartCheckoutViewState extends State<CartCheckoutView> {
     });
   }
 
-  void _showQuantityDialog(int productId, int currentQty) {
-    final textController = TextEditingController(text: currentQty.toString());
+  void _showQuantityDialog(int productId, double currentQty, {int? categoryId}) {
+    final textController = TextEditingController(
+      text: currentQty == currentQty.toInt()
+          ? currentQty.toInt().toString()
+          : currentQty.toString(),
+    );
     showDialog(
       context: context,
       builder: (context) {
@@ -38,7 +42,9 @@ class _CartCheckoutViewState extends State<CartCheckoutView> {
           ),
           content: TextField(
             controller: textController,
-            keyboardType: TextInputType.number,
+            keyboardType: categoryId == 2
+                ? const TextInputType.numberWithOptions(decimal: true)
+                : TextInputType.number,
             autofocus: true,
             decoration: InputDecoration(
               hintText: 'Quantity',
@@ -61,7 +67,14 @@ class _CartCheckoutViewState extends State<CartCheckoutView> {
             ),
             ElevatedButton(
               onPressed: () {
-                final val = int.tryParse(textController.text);
+                final text = textController.text.trim();
+                double? val;
+                if (categoryId == 2) {
+                  val = double.tryParse(text);
+                } else {
+                  val = int.tryParse(text)?.toDouble();
+                }
+
                 if (val != null && val >= 0) {
                   productController.setCartQuantity(productId, val);
                   productController.calculateLocalSubtotal();
@@ -139,7 +152,8 @@ class _CartCheckoutViewState extends State<CartCheckoutView> {
                   final name = item['productName'] ?? 'Product $productId';
                   final weight = item['weight'] ?? '';
                   final price = (item['price'] as num?)?.toDouble() ?? 0.0;
-                  final qty = item['quantity'] as int;
+                  final qty = (item['quantity'] as num?)?.toDouble() ?? 0.0;
+                  final int? categoryId = item['categoryId'] as int?;
 
                   return Container(
                     margin: const EdgeInsets.only(bottom: 12),
@@ -260,25 +274,31 @@ class _CartCheckoutViewState extends State<CartCheckoutView> {
                         QuantityButton(
                           quantity: qty,
                           onQuantityTap:
-                              () => _showQuantityDialog(productId, qty),
+                              () => _showQuantityDialog(
+                                productId,
+                                qty,
+                                categoryId: categoryId,
+                              ),
                           onIncrement: () async {
+                            final double step = categoryId == 2 ? 0.5 : 1.0;
                             productController.setCartQuantity(
                               productId,
-                              qty + 1,
+                              qty + step,
                             );
                             // Update local subtotal only. Final API calculation
                             // for the order will be performed when placing the order.
                             productController.calculateLocalSubtotal();
                           },
                           onDecrement: () async {
-                            if (qty > 1) {
+                            final double step = categoryId == 2 ? 0.5 : 1.0;
+                            if (qty > step) {
                               productController.setCartQuantity(
                                 productId,
-                                qty - 1,
+                                qty - step,
                               );
                             } else {
                               // Remove item from cart
-                              productController.setCartQuantity(productId, 0);
+                              productController.setCartQuantity(productId, 0.0);
                             }
                             // Update local subtotal only. Final API calculation
                             // for the order will be performed when placing the order.

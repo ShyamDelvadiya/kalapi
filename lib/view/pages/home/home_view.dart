@@ -351,19 +351,23 @@ class _HomeViewState extends State<HomeView> {
                   children: [
                     Row(
                       children: [
-                        Text(
-                          label,
-                          style: GoogleFonts.outfit(
-                            fontSize: 12,
-                            color:
-                                isDisabled
-                                    ? AppColors.titleColor(
-                                      context,
-                                    ).withOpacity(0.4)
-                                    : AppColors.titleColor(
-                                      context,
-                                    ).withOpacity(0.6),
-                            fontWeight: FontWeight.w500,
+                        Flexible(
+                          child: Text(
+                            label,
+                            style: GoogleFonts.outfit(
+                              fontSize: 12,
+                              color:
+                                  isDisabled
+                                      ? AppColors.titleColor(
+                                        context,
+                                      ).withOpacity(0.4)
+                                      : AppColors.titleColor(
+                                        context,
+                                      ).withOpacity(0.6),
+                              fontWeight: FontWeight.w500,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         if (isRequired && !isDisabled)
@@ -396,6 +400,8 @@ class _HomeViewState extends State<HomeView> {
                                 ).withOpacity(0.5),
                         fontWeight: FontWeight.w600,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),

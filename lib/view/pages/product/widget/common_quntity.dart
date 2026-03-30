@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class QuantityButton extends StatelessWidget {
-  final int quantity;
+  final num quantity;
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
   final Color bgColor;
@@ -19,6 +19,13 @@ class QuantityButton extends StatelessWidget {
     this.textColor = Colors.white,
     this.onQuantityTap,
   });
+
+  String _formatQuantity(num q) {
+    if (q == q.toInt()) {
+      return q.toInt().toString();
+    }
+    return q.toStringAsFixed(1);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +50,7 @@ class QuantityButton extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              "$quantity",
+              _formatQuantity(quantity),
               style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
             ),
           ),

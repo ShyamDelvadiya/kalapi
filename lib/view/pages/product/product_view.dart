@@ -130,8 +130,12 @@ class _ProductViewState extends State<ProductView> {
     }
   }
 
-  void _showQuantityDialog(int productId, int currentQty) {
-    final textController = TextEditingController(text: currentQty.toString());
+  void _showQuantityDialog(int productId, double currentQty, {int? categoryId}) {
+    final textController = TextEditingController(
+      text: currentQty == currentQty.toInt()
+          ? currentQty.toInt().toString()
+          : currentQty.toString(),
+    );
     showDialog(
       context: context,
       builder: (context) {
@@ -142,7 +146,9 @@ class _ProductViewState extends State<ProductView> {
           ),
           content: TextField(
             controller: textController,
-            keyboardType: TextInputType.number,
+            keyboardType: categoryId == 2
+                ? const TextInputType.numberWithOptions(decimal: true)
+                : TextInputType.number,
             autofocus: true,
             decoration: InputDecoration(
               hintText: 'Quantity',
@@ -165,7 +171,14 @@ class _ProductViewState extends State<ProductView> {
             ),
             ElevatedButton(
               onPressed: () {
-                final val = int.tryParse(textController.text);
+                final text = textController.text.trim();
+                double? val;
+                if (categoryId == 2) {
+                  val = double.tryParse(text);
+                } else {
+                  val = int.tryParse(text)?.toDouble();
+                }
+
                 if (val != null && val >= 0) {
                   productController.setCartQuantity(productId, val);
                 }
@@ -608,45 +621,49 @@ class _ProductViewState extends State<ProductView> {
                             child: Obx(() {
                               final selected =
                                   productController.cartSelected[id] ?? false;
-                              final qty =
-                                  productController.cartQuantities[id] ?? 0;
+                              final double qty =
+                                  productController.cartQuantities[id] ?? 0.0;
                               if (selected) {
                                 return Align(
                                   alignment: Alignment.centerRight,
                                   child: FittedBox(
                                     fit: BoxFit.scaleDown,
                                     child: QuantityButton(
-                                      quantity: qty == 0 ? 1 : qty,
+                                      quantity: qty == 0 ? 1.0 : qty,
                                       onQuantityTap:
                                           () => _showQuantityDialog(
                                             id,
-                                            qty == 0 ? 1 : qty,
+                                            qty == 0 ? 1.0 : qty,
+                                            categoryId: item.categoryId,
                                           ),
                                       onIncrement: () {
-                                        final newQty =
-                                            (productController
-                                                    .cartQuantities[id] ??
-                                                0) +
-                                            1;
+                                        final double currentQty =
+                                            productController
+                                                .cartQuantities[id] ??
+                                            0.0;
+                                        final double step =
+                                            item.categoryId == 2 ? 0.5 : 1.0;
                                         productController.setCartQuantity(
                                           id,
-                                          newQty,
+                                          currentQty + step,
                                         );
                                       },
                                       onDecrement: () {
-                                        final cur =
+                                        final double cur =
                                             productController
                                                 .cartQuantities[id] ??
-                                            1;
-                                        if (cur > 1) {
+                                            1.0;
+                                        final double step =
+                                            item.categoryId == 2 ? 0.5 : 1.0;
+                                        if (cur > step) {
                                           productController.setCartQuantity(
                                             id,
-                                            cur - 1,
+                                            cur - step,
                                           );
                                         } else {
                                           productController.setCartQuantity(
                                             id,
-                                            0,
+                                            0.0,
                                           );
                                         }
                                       },
@@ -686,12 +703,12 @@ class _ProductViewState extends State<ProductView> {
                                       width: 96,
                                       child: ElevatedButton.icon(
                                         onPressed: () {
-                                          final current =
+                                          final double current =
                                               productController
                                                   .cartQuantities[id] ??
-                                              0;
-                                          final next =
-                                              current > 0 ? current + 1 : 1;
+                                              0.0;
+                                          final double next =
+                                              current > 0 ? current + 1.0 : 1.0;
                                           productController.setCartQuantity(
                                             id,
                                             next,
