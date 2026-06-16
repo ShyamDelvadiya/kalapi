@@ -26,11 +26,16 @@ class _CartCheckoutViewState extends State<CartCheckoutView> {
     });
   }
 
-  void _showQuantityDialog(int productId, double currentQty, {int? categoryId}) {
+  void _showQuantityDialog(
+    int productId,
+    double currentQty, {
+    int? categoryId,
+  }) {
     final textController = TextEditingController(
-      text: currentQty == currentQty.toInt()
-          ? currentQty.toInt().toString()
-          : currentQty.toString(),
+      text:
+          currentQty == currentQty.toInt()
+              ? currentQty.toInt().toString()
+              : currentQty.toString(),
     );
     showDialog(
       context: context,
@@ -42,9 +47,10 @@ class _CartCheckoutViewState extends State<CartCheckoutView> {
           ),
           content: TextField(
             controller: textController,
-            keyboardType: categoryId == 2
-                ? const TextInputType.numberWithOptions(decimal: true)
-                : TextInputType.number,
+            keyboardType:
+                categoryId == 2
+                    ? const TextInputType.numberWithOptions(decimal: true)
+                    : TextInputType.number,
             autofocus: true,
             decoration: InputDecoration(
               hintText: 'Quantity',
@@ -401,37 +407,14 @@ class _CartCheckoutViewState extends State<CartCheckoutView> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      isCalculating
-                          ? Row(
-                            children: [
-                              SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    AppColors.primaryColorStudent(context),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Calculating...',
-                                style: GoogleFonts.outfit(
-                                  fontSize: 14,
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                            ],
-                          )
-                          : Text(
-                            '₹${localSubtotal.toStringAsFixed(2)}',
-                            style: GoogleFonts.outfit(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.primaryColorStudent(context),
-                            ),
-                          ),
+                      Text(
+                        '₹${localSubtotal.toStringAsFixed(2)}',
+                        style: GoogleFonts.outfit(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primaryColorStudent(context),
+                        ),
+                      ),
                     ],
                   ),
 

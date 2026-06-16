@@ -112,7 +112,7 @@ class RestRequestProvider extends GetConnect {
   @override
   void onInit() {
     httpClient.defaultContentType = "application/json";
-    httpClient.timeout = const Duration(seconds: 20);
+    httpClient.timeout = const Duration(seconds: 60);
 
     // httpClient.defaultDecoder = baseResponse.fromJson;
 
@@ -729,11 +729,66 @@ class RestRequestProvider extends GetConnect {
       changeRequestStatus(requestStatus, RequestStatus.loading);
 
       // Send request
+      final requestTimeout =
+          endPoint.contains('/Order/SaveOrder')
+              ? const Duration(seconds: 90)
+              : const Duration(seconds: 60);
+
+      if (endPoint.contains('/Order/SaveOrder')) {
+        final response = await http
+            .post(
+              Uri.parse(url),
+              headers: headers ?? getHeader(),
+              body: json.encode(requestData),
+            )
+            .timeout(requestTimeout);
+
+        print("🔻 Status Code: ${response.statusCode}");
+        print("🔻 Raw Body: ${response.body}");
+
+        dynamic responseBody;
+        try {
+          responseBody =
+              response.body.isEmpty
+                  ? <String, dynamic>{}
+                  : json.decode(response.body);
+        } catch (_) {
+          responseBody = response.body;
+        }
+
+        log("📥 Response Status: ${response.statusCode}, Body: $responseBody");
+
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          log("✅ success.response: $responseBody");
+
+          Map<String, dynamic> payload;
+          if (responseBody is Map<String, dynamic>) {
+            payload = Map<String, dynamic>.from(responseBody);
+          } else if (responseBody is List) {
+            payload = {'data': responseBody};
+          } else {
+            payload = {'data': responseBody};
+          }
+
+          onSuccess(payload);
+          changeRequestStatus(requestStatus, RequestStatus.success);
+          return ResponseModel.withSuccess(payload);
+        }
+
+        final errorMsg = extractErrorMessage(responseBody);
+        final errors = [Error(message: errorMsg)];
+        log("❌ Error: $errorMsg");
+        _showErrorSnackbar(errorMsg);
+        onError(errors, response.statusCode);
+        changeRequestStatus(requestStatus, RequestStatus.failed);
+        return ResponseModel.withError(errors);
+      }
+
       var response = await post(
         url,
         requestData,
         headers: headers ?? getHeader(),
-      );
+      ).timeout(requestTimeout);
       print("🔻 Status Code: ${response.statusCode}");
       print("🔻 Raw Body: ${response.body}");
 
@@ -846,7 +901,7 @@ class RestRequestProvider extends GetConnect {
       List<Error> errors = [];
       String errorMessage;
       if (e is TimeoutException) {
-        errorMessage = "The connection has timed out after 60 seconds.";
+        errorMessage = "The connection has timed out. Please try again.";
         errors.add(Error(message: errorMessage));
       } else if (e.toString().contains("SocketException") ||
           e.toString().contains("Failed host lookup")) {

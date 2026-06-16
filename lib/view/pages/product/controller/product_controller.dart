@@ -261,7 +261,12 @@ class ProductController extends GetxController {
     productApiCall(categoryId: selectedCategoryId.value, search: value);
   }
 
-  Future<void> checkOutApiCall({var body, Function()? onSuccess}) async {
+  Future<bool> checkOutApiCall({
+    var body,
+    Future<void> Function()? onSuccess,
+  }) async {
+    final completer = Completer<bool>();
+
     try {
       await apiService.doPost(
         headers: apiService.getHeader(),
@@ -269,20 +274,40 @@ class ProductController extends GetxController {
         endPoint: ApiEndPoint.checkOut,
         requestData: body,
         onSuccess: (responseData) async {
-          requestStatus.value = RequestStatus.success;
-          checkOutResponses.value = CheckOutApiRes.fromJson((responseData));
           try {
-            if (onSuccess != null) onSuccess();
+            requestStatus.value = RequestStatus.success;
+            checkOutResponses.value = CheckOutApiRes.fromJson((responseData));
+            if (onSuccess != null) {
+              await onSuccess();
+            }
+            if (!completer.isCompleted) completer.complete(true);
           } catch (e) {
             log("onSuccess callback error: $e");
+            if (!completer.isCompleted) completer.complete(false);
           }
         },
-        onError: (errors, statusCode) {},
-        onConnectionError: (errors) {},
+        onError: (errors, statusCode) {
+          log(
+            'Order placement failed: ${errors.map((e) => e.message).join(', ')}',
+          );
+          if (!completer.isCompleted) completer.complete(false);
+        },
+        onConnectionError: (errors) {
+          log(
+            'Connection error while placing order: ${errors.map((e) => e.message).join(', ')}',
+          );
+          if (!completer.isCompleted) completer.complete(false);
+        },
       );
     } catch (e) {
       log("Product API call failed: $e");
-    } finally {}
+      if (!completer.isCompleted) completer.complete(false);
+    }
+
+    return completer.future.timeout(
+      const Duration(seconds: 10),
+      onTimeout: () => false,
+    );
   }
 
   /// Calculate local subtotal from cart items
@@ -356,6 +381,7 @@ class ProductController extends GetxController {
     }
 
     isCalculatingTotal.value = true;
+    isPlacingOrder.value = true;
 
     try {
       final branchId = pref.read("branchId") ?? 0;
@@ -373,33 +399,29 @@ class ProductController extends GetxController {
           apiTotal.value =
               checkOutResponses.value.totalAmount?.toDouble() ?? 0.0;
           discount.value = checkOutResponses.value.discount?.toDouble() ?? 0.0;
-          isPlacingOrder.value = true;
 
-          // Simulate order placement
+          // Show snackbar BEFORE navigation to ensure it's queued properly
+          rootScaffoldMessengerKey.currentState?.showSnackBar(
+            SnackBar(
+              content: const Text('Order placed successfully!'),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+
           await Future.delayed(const Duration(milliseconds: 800));
 
-          isPlacingOrder.value = false;
-
-          // Clear cart after successful order
           clearCartSelection();
 
-          // Navigate to Home and show snackbar after the new frame is ready
           await Get.offAll(() => HomeView());
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            rootScaffoldMessengerKey.currentState?.showSnackBar(
-              SnackBar(
-                content: const Text('Order placed successfully!'),
-                backgroundColor: Colors.green,
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
-          });
         },
       );
     } catch (e) {
       log('Error fetching total from API: $e');
     } finally {
       isCalculatingTotal.value = false;
+      isPlacingOrder.value = false;
     }
   }
 

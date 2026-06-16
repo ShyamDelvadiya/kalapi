@@ -36,7 +36,7 @@ class OrderDetailsData {
   String? orderNumber;
   int? productID;
   String? productName;
-  int? quantity;
+  dynamic quantity;
   dynamic deliveredQuantity;
   dynamic unitPrice;
   dynamic orderItemAmount;
