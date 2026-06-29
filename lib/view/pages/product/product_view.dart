@@ -22,7 +22,16 @@ class _ProductViewState extends State<ProductView> {
   @override
   void initState() {
     super.initState();
-    productController.productApiCall(page: 1, size: 10);
+    if (isPBBranch.value) {
+      productController.selectedCategoryId.value = 1;
+    } else {
+      productController.selectedCategoryId.value = null;
+    }
+    productController.productApiCall(
+      page: 1,
+      size: 10,
+      categoryId: productController.selectedCategoryId.value,
+    );
     productController.fetchCategories();
     _searchController = TextEditingController();
     _scrollController = ScrollController();
@@ -361,20 +370,30 @@ class _ProductViewState extends State<ProductView> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: IconButton(
-                        icon: const Icon(
-                          Icons.filter_list_rounded,
-                          color: Colors.orange,
-                        ),
-                        onPressed: _openCategorySheet,
-                      ),
-                    ),
+                    Obx(() {
+                      if (isPBBranch.value) {
+                        return const SizedBox.shrink();
+                      }
+                      return Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const SizedBox(width: 12),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: IconButton(
+                              icon: const Icon(
+                                Icons.filter_list_rounded,
+                                color: Colors.orange,
+                              ),
+                              onPressed: _openCategorySheet,
+                            ),
+                          ),
+                        ],
+                      );
+                    }),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -382,6 +401,7 @@ class _ProductViewState extends State<ProductView> {
             ),
           ),
           Obx(() {
+            if (isPBBranch.value) return const SizedBox.shrink();
             final sel = productController.selectedCategoryId.value;
             if (sel == null) return const SizedBox.shrink();
             String selectedName = '';
