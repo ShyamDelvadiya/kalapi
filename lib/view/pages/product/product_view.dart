@@ -139,11 +139,16 @@ class _ProductViewState extends State<ProductView> {
     }
   }
 
-  void _showQuantityDialog(int productId, double currentQty, {int? categoryId}) {
+  void _showQuantityDialog(
+    int productId,
+    double currentQty, {
+    int? categoryId,
+  }) {
     final textController = TextEditingController(
-      text: currentQty == currentQty.toInt()
-          ? currentQty.toInt().toString()
-          : currentQty.toString(),
+      text:
+          currentQty == currentQty.toInt()
+              ? currentQty.toInt().toString()
+              : currentQty.toString(),
     );
     showDialog(
       context: context,
@@ -155,9 +160,10 @@ class _ProductViewState extends State<ProductView> {
           ),
           content: TextField(
             controller: textController,
-            keyboardType: categoryId == 2
-                ? const TextInputType.numberWithOptions(decimal: true)
-                : TextInputType.number,
+            keyboardType:
+                categoryId == 2
+                    ? const TextInputType.numberWithOptions(decimal: true)
+                    : TextInputType.number,
             autofocus: true,
             decoration: InputDecoration(
               hintText: 'Quantity',
@@ -535,178 +541,186 @@ class _ProductViewState extends State<ProductView> {
                           ),
                         ],
                       ),
-                      padding: const EdgeInsets.all(12),
-                      child: Row(
+                      padding: const EdgeInsets.all(14),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Obx(() {
-                            final anySelected = productController
-                                .cartSelected
-                                .values
-                                .any((v) => v == true);
-                            if (!anySelected) return const SizedBox.shrink();
-                            final sel =
-                                productController.cartSelected[id] ?? false;
-                            return GestureDetector(
-                              onTap: () {
-                                productController.toggleCartSelection(id);
-                              },
-                              child: Container(
-                                margin: const EdgeInsets.only(right: 12),
-                                width: 24,
-                                height: 24,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 2,
+                          // Top Row: Checkbox, Avatar, and Product Name
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Obx(() {
+                                final anySelected = productController.cartSelected.values
+                                    .any((v) => v == true);
+                                if (!anySelected) return const SizedBox.shrink();
+                                final sel =
+                                    productController.cartSelected[id] ?? false;
+                                return GestureDetector(
+                                  onTap: () {
+                                    productController.toggleCartSelection(id);
+                                  },
+                                  child: Container(
+                                    margin: const EdgeInsets.only(right: 10),
+                                    width: 24,
+                                    height: 24,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: Colors.white,
+                                        width: 2,
+                                      ),
+                                      color:
+                                          sel ? Colors.white : Colors.transparent,
+                                    ),
+                                    child:
+                                        sel
+                                            ? Icon(
+                                              Icons.check,
+                                              size: 16,
+                                              color: AppColors.primaryColorStudent(
+                                                context,
+                                              ),
+                                            )
+                                            : null,
                                   ),
-                                  color:
-                                      sel ? Colors.white : Colors.transparent,
+                                );
+                              }),
+                              Container(
+                                width: 44,
+                                height: 44,
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  shape: BoxShape.circle,
                                 ),
-                                child:
-                                    sel
-                                        ? Icon(
-                                          Icons.check,
-                                          size: 16,
-                                          color: AppColors.primaryColorStudent(
-                                            context,
-                                          ),
-                                        )
-                                        : null,
+                                alignment: Alignment.center,
+                                child: Text(
+                                  (item.productName ?? '').isNotEmpty
+                                      ? item.productName![0]
+                                      : '?',
+                                  style: GoogleFonts.outfit(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                  ),
+                                ),
                               ),
-                            );
-                          }),
-                          Container(
-                            width: 50,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              shape: BoxShape.circle,
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              (item.productName ?? '').isNotEmpty
-                                  ? item.productName![0]
-                                  : '?',
-                              style: GoogleFonts.outfit(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
                                   item.productName ?? '-',
                                   style: GoogleFonts.outfit(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
+                                    height: 1.25,
                                   ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
                                 ),
-                                const SizedBox(height: 4),
-                                Row(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 6,
-                                        vertical: 2,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.black.withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: Text(
-                                        item.weight ?? '-',
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          // Bottom Row: Weight tag on the left, Price & Action button on the right
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              if ((item.weight ?? '').isNotEmpty)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withOpacity(0.12),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    item.weight!,
+                                    style: GoogleFonts.outfit(
+                                      color: Colors.white.withOpacity(0.95),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                )
+                              else
+                                const SizedBox.shrink(),
+                              Obx(() {
+                                final selected =
+                                    productController.cartSelected[id] ?? false;
+                                final double qty =
+                                    productController.cartQuantities[id] ?? 0.0;
+                                final price =
+                                    isPBBranch.value
+                                        ? (item.pbPrice ?? 0)
+                                        : isInternalBranch.value
+                                        ? (item.internalPrice ??
+                                            item.basePrice ??
+                                            0)
+                                        : (item.basePrice ?? 0);
+
+                                if (selected) {
+                                  return Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        '₹$price',
                                         style: GoogleFonts.outfit(
-                                          color: Colors.white.withOpacity(0.9),
-                                          fontSize: 11,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Flexible(
-                            child: Obx(() {
-                              final selected =
-                                  productController.cartSelected[id] ?? false;
-                              final double qty =
-                                  productController.cartQuantities[id] ?? 0.0;
-                              if (selected) {
-                                return Align(
-                                  alignment: Alignment.centerRight,
-                                  child: FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    child: QuantityButton(
-                                      quantity: qty == 0 ? 1.0 : qty,
-                                      onQuantityTap:
-                                          () => _showQuantityDialog(
-                                            id,
-                                            qty == 0 ? 1.0 : qty,
-                                            categoryId: item.categoryId,
-                                          ),
-                                      onIncrement: () {
-                                        final double currentQty =
-                                            productController
-                                                .cartQuantities[id] ??
-                                            0.0;
-                                        final double step =
-                                            item.categoryId == 2 ? 0.5 : 1.0;
-                                        productController.setCartQuantity(
-                                          id,
-                                          currentQty + step,
-                                        );
-                                      },
-                                      onDecrement: () {
-                                        final double cur =
-                                            productController
-                                                .cartQuantities[id] ??
-                                            1.0;
-                                        final double step =
-                                            item.categoryId == 2 ? 0.5 : 1.0;
-                                        if (cur > step) {
+                                      const SizedBox(width: 10),
+                                      QuantityButton(
+                                        quantity: qty == 0 ? 1.0 : qty,
+                                        onQuantityTap:
+                                            () => _showQuantityDialog(
+                                              id,
+                                              qty == 0 ? 1.0 : qty,
+                                              categoryId: item.categoryId,
+                                            ),
+                                        onIncrement: () {
+                                          final double currentQty =
+                                              productController
+                                                  .cartQuantities[id] ??
+                                              0.0;
+                                          final double step =
+                                              item.categoryId == 2 ? 0.5 : 1.0;
                                           productController.setCartQuantity(
                                             id,
-                                            cur - step,
+                                            currentQty + step,
                                           );
-                                        } else {
-                                          productController.setCartQuantity(
-                                            id,
-                                            0.0,
-                                          );
-                                        }
-                                      },
-                                      bgColor: Colors.white.withOpacity(0.2),
-                                      iconColor: Colors.white,
-                                      textColor: Colors.white,
-                                    ),
-                                  ),
-                                );
-                              }
-                              final price =
-                                  isPBBranch.value
-                                      ? (item.pbPrice ?? 0)
-                                      : isInternalBranch.value
-                                      ? (item.internalPrice ??
-                                          item.basePrice ??
-                                          0)
-                                      : (item.basePrice ?? 0);
-                              return Align(
-                                alignment: Alignment.centerRight,
-                                child: Column(
+                                        },
+                                        onDecrement: () {
+                                          final double cur =
+                                              productController
+                                                  .cartQuantities[id] ??
+                                              1.0;
+                                          final double step =
+                                              item.categoryId == 2 ? 0.5 : 1.0;
+                                          if (cur > step) {
+                                            productController.setCartQuantity(
+                                              id,
+                                              cur - step,
+                                            );
+                                          } else {
+                                            productController.setCartQuantity(
+                                              id,
+                                              0.0,
+                                            );
+                                          }
+                                        },
+                                        bgColor: Colors.white.withOpacity(0.2),
+                                        iconColor: Colors.white,
+                                        textColor: Colors.white,
+                                      ),
+                                    ],
+                                  );
+                                }
+
+                                return Row(
                                   mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     Text(
                                       '₹$price',
@@ -715,54 +729,54 @@ class _ProductViewState extends State<ProductView> {
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16,
                                       ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                    const SizedBox(height: 6),
-                                    SizedBox(
-                                      width: 96,
-                                      child: ElevatedButton.icon(
-                                        onPressed: () {
-                                          final double current =
-                                              productController
-                                                  .cartQuantities[id] ??
-                                              0.0;
-                                          final double next =
-                                              current > 0 ? current + 1.0 : 1.0;
-                                          productController.setCartQuantity(
-                                            id,
-                                            next,
-                                          );
-                                        },
-                                        icon: const Icon(Icons.add, size: 16),
-                                        label: Text(
-                                          'Add',
-                                          style: GoogleFonts.outfit(
-                                            fontWeight: FontWeight.w600,
-                                          ),
+                                    const SizedBox(width: 10),
+                                    ElevatedButton.icon(
+                                      onPressed: () {
+                                        final double current =
+                                            productController
+                                                .cartQuantities[id] ??
+                                            0.0;
+                                        final double next =
+                                            current > 0 ? current + 1.0 : 1.0;
+                                        productController.setCartQuantity(
+                                          id,
+                                          next,
+                                        );
+                                      },
+                                      icon: const Icon(Icons.add, size: 16),
+                                      label: Text(
+                                        'Add',
+                                        style: GoogleFonts.outfit(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 13,
                                         ),
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.white,
-                                          foregroundColor:
-                                              AppColors.primaryColorStudent(
-                                                context,
-                                              ),
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 10,
-                                            vertical: 8,
-                                          ),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              12,
+                                      ),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.white,
+                                        foregroundColor:
+                                            AppColors.primaryColorStudent(
+                                              context,
                                             ),
+                                        elevation: 0,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 14,
+                                          vertical: 8,
+                                        ),
+                                        minimumSize: Size.zero,
+                                        tapTargetSize:
+                                            MaterialTapTargetSize.shrinkWrap,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            10,
                                           ),
                                         ),
                                       ),
                                     ),
                                   ],
-                                ),
-                              );
-                            }),
+                                );
+                              }),
+                            ],
                           ),
                         ],
                       ),

@@ -175,144 +175,170 @@ class _CartCheckoutViewState extends State<CartCheckoutView> {
                       ],
                     ),
                     padding: const EdgeInsets.all(14),
-                    child: Row(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Product Avatar
-                        Container(
-                          width: 50,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                AppColors.primaryColorStudent(context),
-                                AppColors.primaryColorOwner(context),
-                              ],
+                        // Top Row: Avatar, Full Name, and Branch Tag
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    AppColors.primaryColorStudent(context),
+                                    AppColors.primaryColorOwner(context),
+                                  ],
+                                ),
+                                shape: BoxShape.circle,
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                name.isNotEmpty ? name[0].toUpperCase() : '?',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
-                            shape: BoxShape.circle,
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            name.isNotEmpty ? name[0].toUpperCase() : '?',
-                            style: GoogleFonts.outfit(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 14),
-
-                        // Product Info
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
                                 name,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
                                 style: GoogleFonts.outfit(
                                   fontSize: 16,
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                  height: 1.25,
                                 ),
                               ),
-                              const SizedBox(height: 4),
-                              Text(
-                                weight,
-                                style: GoogleFonts.outfit(
-                                  fontSize: 13,
-                                  color: Colors.grey.shade600,
+                            ),
+                            const SizedBox(width: 8),
+                            Obx(() {
+                              final label =
+                                  isPBBranch.value
+                                      ? 'PB Price'
+                                      : isInternalBranch.value
+                                      ? 'Internal'
+                                      : 'Base';
+                              return Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 3,
                                 ),
-                              ),
-                              const SizedBox(height: 6),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    '₹${price.toStringAsFixed(2)}',
-                                    style: GoogleFonts.outfit(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColors.primaryColorStudent(
-                                        context,
+                                decoration: BoxDecoration(
+                                  color: AppColors.primaryColorStudent(
+                                    context,
+                                  ).withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: AppColors.primaryColorStudent(
+                                      context,
+                                    ).withOpacity(0.3),
+                                  ),
+                                ),
+                                child: Text(
+                                  label,
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 11,
+                                    color: AppColors.primaryColorStudent(
+                                      context,
+                                    ),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              );
+                            }),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        // Bottom Row: Weight & Price on left, Quantity controls on right
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (weight.isNotEmpty) ...[
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 3,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade100,
+                                      borderRadius: BorderRadius.circular(6),
+                                      border: Border.all(
+                                        color: Colors.grey.shade300,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      weight,
+                                      style: GoogleFonts.outfit(
+                                        fontSize: 12,
+                                        color: Colors.grey.shade700,
+                                        fontWeight: FontWeight.w500,
                                       ),
                                     ),
                                   ),
-                                  Obx(() {
-                                    final label =
-                                        isPBBranch.value
-                                            ? 'PB Price'
-                                            : isInternalBranch.value
-                                            ? 'Internal'
-                                            : 'Base';
-                                    return Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 2,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.orange.shade50,
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(
-                                          color: Colors.orange.shade200,
-                                        ),
-                                      ),
-                                      child: Text(
-                                        label,
-                                        style: GoogleFonts.outfit(
-                                          fontSize: 11,
-                                          color: AppColors.primaryColorStudent(
-                                            context,
-                                          ),
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    );
-                                  }),
+                                  const SizedBox(width: 8),
                                 ],
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Quantity Controls
-                        QuantityButton(
-                          quantity: qty,
-                          onQuantityTap:
-                              () => _showQuantityDialog(
-                                productId,
-                                qty,
-                                categoryId: categoryId,
-                              ),
-                          onIncrement: () async {
-                            final double step = categoryId == 2 ? 0.5 : 1.0;
-                            productController.setCartQuantity(
-                              productId,
-                              qty + step,
-                            );
-                            // Update local subtotal only. Final API calculation
-                            // for the order will be performed when placing the order.
-                            productController.calculateLocalSubtotal();
-                          },
-                          onDecrement: () async {
-                            final double step = categoryId == 2 ? 0.5 : 1.0;
-                            if (qty > step) {
-                              productController.setCartQuantity(
-                                productId,
-                                qty - step,
-                              );
-                            } else {
-                              // Remove item from cart
-                              productController.setCartQuantity(productId, 0.0);
-                            }
-                            // Update local subtotal only. Final API calculation
-                            // for the order will be performed when placing the order.
-                            productController.calculateLocalSubtotal();
-                          },
-                          bgColor: Colors.grey.shade200,
-                          iconColor: Colors.black,
-                          textColor: Colors.black,
+                                Text(
+                                  '₹${price.toStringAsFixed(2)}',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.primaryColorStudent(
+                                      context,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            QuantityButton(
+                              quantity: qty,
+                              onQuantityTap:
+                                  () => _showQuantityDialog(
+                                    productId,
+                                    qty,
+                                    categoryId: categoryId,
+                                  ),
+                              onIncrement: () async {
+                                final double step =
+                                    categoryId == 2 ? 0.5 : 1.0;
+                                productController.setCartQuantity(
+                                  productId,
+                                  qty + step,
+                                );
+                                productController.calculateLocalSubtotal();
+                              },
+                              onDecrement: () async {
+                                final double step =
+                                    categoryId == 2 ? 0.5 : 1.0;
+                                if (qty > step) {
+                                  productController.setCartQuantity(
+                                    productId,
+                                    qty - step,
+                                  );
+                                } else {
+                                  productController.setCartQuantity(
+                                    productId,
+                                    0.0,
+                                  );
+                                }
+                                productController.calculateLocalSubtotal();
+                              },
+                              bgColor: AppColors.primaryColorStudent(
+                                context,
+                              ).withOpacity(0.1),
+                              iconColor: AppColors.primaryColorStudent(context),
+                              textColor: AppColors.primaryColorStudent(context),
+                            ),
+                          ],
                         ),
                       ],
                     ),

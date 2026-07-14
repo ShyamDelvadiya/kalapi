@@ -307,7 +307,7 @@ class _HomeViewState extends State<HomeView> {
       child: Opacity(
         opacity: isDisabled ? 0.5 : 1.0,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
           decoration: BoxDecoration(
             color:
                 isDisabled
@@ -325,7 +325,7 @@ class _HomeViewState extends State<HomeView> {
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(6),
+                padding: const EdgeInsets.all(5),
                 decoration: BoxDecoration(
                   color:
                       isDisabled
@@ -337,14 +337,14 @@ class _HomeViewState extends State<HomeView> {
                 ),
                 child: Icon(
                   Icons.calendar_today_outlined,
-                  size: 18,
+                  size: 16,
                   color:
                       isDisabled
                           ? Colors.grey
                           : AppColors.primaryColorStudent(context),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 8),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -382,32 +382,36 @@ class _HomeViewState extends State<HomeView> {
                       ],
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      date != null
-                          ? DateFormat('MMM dd, yyyy').format(date)
-                          : isDisabled
-                          ? 'Select start date first'
-                          : 'Select date',
-                      style: GoogleFonts.outfit(
-                        fontSize: 14,
-                        color:
-                            date != null
-                                ? AppColors.titleColor(context)
-                                : isDisabled
-                                ? AppColors.titleColor(context).withOpacity(0.3)
-                                : AppColors.titleColor(
-                                  context,
-                                ).withOpacity(0.5),
-                        fontWeight: FontWeight.w600,
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        date != null
+                            ? DateFormat('MMM dd, yyyy').format(date)
+                            : isDisabled
+                            ? 'Select start date first'
+                            : 'Select date',
+                        style: GoogleFonts.outfit(
+                          fontSize: 13,
+                          color:
+                              date != null
+                                  ? AppColors.titleColor(context)
+                                  : isDisabled
+                                  ? AppColors.titleColor(context).withOpacity(0.3)
+                                  : AppColors.titleColor(
+                                    context,
+                                  ).withOpacity(0.5),
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
               ),
+              const SizedBox(width: 4),
               Icon(
                 isDisabled ? Icons.lock_outline : Icons.arrow_drop_down,
+                size: 20,
                 color:
                     isDisabled
                         ? Colors.grey
@@ -674,7 +678,7 @@ class _HomeViewState extends State<HomeView> {
                       )
                     else
                       Container(
-                        padding: const EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(16),
@@ -719,7 +723,7 @@ class _HomeViewState extends State<HomeView> {
                                     isRequired: true,
                                   ),
                                 ),
-                                const SizedBox(width: 12),
+                                const SizedBox(width: 8),
                                 Expanded(
                                   child: _buildDatePickerButton(
                                     context,
