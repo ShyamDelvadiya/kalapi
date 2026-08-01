@@ -38,6 +38,7 @@ class OrderController extends GetxController {
     {'id': 3, 'name': 'Delivered'},
     {'id': 4, 'name': 'Payment Pending'},
     {'id': 5, 'name': 'Complete'},
+    {'id': 6, 'name': 'Cancelled'},
   ];
 
   @override

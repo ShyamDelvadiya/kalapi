@@ -28,16 +28,11 @@ android {
 
     signingConfigs {
         create("release") {
-            keyAlias = keystoreProperties.getProperty("keyAlias") ?: ""
-            keyPassword = keystoreProperties.getProperty("keyPassword") ?: ""
-            storePassword = keystoreProperties.getProperty("storePassword") ?: ""
+            keyAlias = keystoreProperties.getProperty("keyAlias") ?: "kalapi"
+            keyPassword = keystoreProperties.getProperty("keyPassword") ?: "kalapi"
+            storePassword = keystoreProperties.getProperty("storePassword") ?: "kalapi"
             val storePath = keystoreProperties.getProperty("storeFile")
-            if (!storePath.isNullOrBlank()) {
-                val candidate = rootProject.file(storePath)
-                if (candidate.exists()) {
-                    storeFile = candidate
-                }
-            }
+            storeFile = if (!storePath.isNullOrEmpty()) file(storePath) else file("kalapi.jks")
         }
     }
 
@@ -45,20 +40,13 @@ android {
         applicationId = "com.kalapi.farshan.app"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        versionCode = 12
+        versionCode = 13
         versionName = flutter.versionName
     }
 
     buildTypes {
-        getByName("release") {
-            val storeFileProp = keystoreProperties.getProperty("storeFile")
-            val candidate = if (!storeFileProp.isNullOrBlank()) rootProject.file(storeFileProp) else null
-            val hasSigning = keystorePropertiesFile.exists() && (candidate?.exists() == true)
-            signingConfig = if (hasSigning) {
-                signingConfigs.getByName("release")
-            } else {
-                signingConfigs.getByName("debug")
-            }
+        release {
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = false
             isShrinkResources = false
         }
