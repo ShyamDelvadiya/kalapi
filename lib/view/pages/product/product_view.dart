@@ -509,7 +509,7 @@ class _ProductViewState extends State<ProductView> {
                       final anySelected = productController.cartSelected.values
                           .any((v) => v == true);
                       if (anySelected) {
-                        productController.toggleCartSelection(id);
+                        productController.toggleCartSelection(id, product: item);
                         return;
                       }
                       Get.to(
@@ -517,7 +517,7 @@ class _ProductViewState extends State<ProductView> {
                       );
                     },
                     onLongPress: () {
-                      productController.toggleCartSelection(id);
+                      productController.toggleCartSelection(id, product: item);
                     },
                     child: Container(
                       margin: const EdgeInsets.only(bottom: 16),
@@ -550,14 +550,18 @@ class _ProductViewState extends State<ProductView> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Obx(() {
-                                final anySelected = productController.cartSelected.values
+                                final anySelected = productController
+                                    .cartSelected
+                                    .values
                                     .any((v) => v == true);
-                                if (!anySelected) return const SizedBox.shrink();
+                                if (!anySelected) {
+                                  return const SizedBox.shrink();
+                                }
                                 final sel =
                                     productController.cartSelected[id] ?? false;
                                 return GestureDetector(
                                   onTap: () {
-                                    productController.toggleCartSelection(id);
+                                    productController.toggleCartSelection(id, product: item);
                                   },
                                   child: Container(
                                     margin: const EdgeInsets.only(right: 10),
@@ -570,16 +574,19 @@ class _ProductViewState extends State<ProductView> {
                                         width: 2,
                                       ),
                                       color:
-                                          sel ? Colors.white : Colors.transparent,
+                                          sel
+                                              ? Colors.white
+                                              : Colors.transparent,
                                     ),
                                     child:
                                         sel
                                             ? Icon(
                                               Icons.check,
                                               size: 16,
-                                              color: AppColors.primaryColorStudent(
-                                                context,
-                                              ),
+                                              color:
+                                                  AppColors.primaryColorStudent(
+                                                    context,
+                                                  ),
                                             )
                                             : null,
                                   ),
@@ -690,6 +697,7 @@ class _ProductViewState extends State<ProductView> {
                                           productController.setCartQuantity(
                                             id,
                                             currentQty + step,
+                                            product: item,
                                           );
                                         },
                                         onDecrement: () {
@@ -703,11 +711,13 @@ class _ProductViewState extends State<ProductView> {
                                             productController.setCartQuantity(
                                               id,
                                               cur - step,
+                                              product: item,
                                             );
                                           } else {
                                             productController.setCartQuantity(
                                               id,
                                               0.0,
+                                              product: item,
                                             );
                                           }
                                         },
@@ -742,6 +752,7 @@ class _ProductViewState extends State<ProductView> {
                                         productController.setCartQuantity(
                                           id,
                                           next,
+                                          product: item,
                                         );
                                       },
                                       icon: const Icon(Icons.add, size: 16),

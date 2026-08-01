@@ -5,7 +5,7 @@
   "packages": [
     {
       "name": "kalapi",
-      "version": "1.0.11",
+      "version": "1.0.12",
       "dependencies": [
         "carousel_slider",
         "cupertino_icons",

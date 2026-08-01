@@ -33,6 +33,8 @@ class ProductController extends GetxController {
   // Cart / selection shared state so different screens can read/write quantities
   final RxMap<int, double> cartQuantities = <int, double>{}.obs;
   final RxMap<int, bool> cartSelected = <int, bool>{}.obs;
+  final RxMap<int, ProductList> cartProducts = <int, ProductList>{}.obs;
+  final Map<int, ProductList> allProductsCache = <int, ProductList>{};
 
   // Reactive calculation properties
   final RxDouble subtotal = 0.0.obs;
@@ -46,33 +48,54 @@ class ProductController extends GetxController {
   // Debounced API calls were removed so totals are calculated only at checkout.
 
   /// Set quantity for a product in the shared cart state. If qty <= 0 the product is removed.
-  void setCartQuantity(int productId, double qty) {
+  void setCartQuantity(int productId, double qty, {ProductList? product}) {
     if (qty <= 0) {
       cartQuantities.remove(productId);
       cartSelected.remove(productId);
+      cartProducts.remove(productId);
     } else {
       cartQuantities[productId] = qty;
       // keep selected flag true if quantity is set
       cartSelected[productId] = true;
+      final foundProduct =
+          product ??
+          cartProducts[productId] ??
+          items.firstWhereOrNull((p) => p.productId == productId) ??
+          allProductsCache[productId];
+      if (foundProduct != null) {
+        cartProducts[productId] = foundProduct;
+      }
     }
     cartQuantities.refresh();
     cartSelected.refresh();
+    cartProducts.refresh();
 
     // Trigger calculation update (local only). API total will be fetched at checkout.
     calculateLocalSubtotal();
   }
 
   /// Toggle whether a product is selected for checkout
-  void toggleCartSelection(int productId) {
+  void toggleCartSelection(int productId, {ProductList? product}) {
     final cur = cartSelected[productId] ?? false;
-    cartSelected[productId] = !cur;
-    if (!(cartSelected[productId] ?? false)) {
+    final nextState = !cur;
+    cartSelected[productId] = nextState;
+    if (!nextState) {
       cartQuantities.remove(productId);
+      cartProducts.remove(productId);
     } else {
       cartQuantities[productId] = cartQuantities[productId] ?? 1.0;
+      final foundProduct =
+          product ??
+          cartProducts[productId] ??
+          items.firstWhereOrNull((p) => p.productId == productId) ??
+          allProductsCache[productId];
+      if (foundProduct != null) {
+        cartProducts[productId] = foundProduct;
+      }
     }
     cartSelected.refresh();
     cartQuantities.refresh();
+    cartProducts.refresh();
 
     // Trigger calculation update (local only). API total will be fetched at checkout.
     calculateLocalSubtotal();
@@ -81,8 +104,10 @@ class ProductController extends GetxController {
   void clearCartSelection() {
     cartSelected.clear();
     cartQuantities.clear();
+    cartProducts.clear();
     cartSelected.refresh();
     cartQuantities.refresh();
+    cartProducts.refresh();
 
     // Reset calculations
     subtotal.value = 0.0;
@@ -98,7 +123,10 @@ class ProductController extends GetxController {
         final pid = entry.key;
         final qty = cartQuantities[pid] ?? 1.0;
         // Attach chosen unit price for API (internal vs base)
-        final product = items.firstWhereOrNull((p) => p.productId == pid);
+        final product =
+            cartProducts[pid] ??
+            items.firstWhereOrNull((p) => p.productId == pid) ??
+            allProductsCache[pid];
         double unitPrice = 0.0;
         if (product != null) {
           num? baseNum;
@@ -177,6 +205,11 @@ class ProductController extends GetxController {
             Map<String, dynamic>.from(responseData),
           );
           final List<ProductList> fetched = resp.data ?? [];
+          for (final item in fetched) {
+            if (item.productId != null) {
+              allProductsCache[item.productId!] = item;
+            }
+          }
 
           if (page == 1) {
             items.clear();
@@ -319,8 +352,11 @@ class ProductController extends GetxController {
         final productId = entry.key;
         final quantity = cartQuantities[productId] ?? 0.0;
 
-        // Find product in items list
-        final product = items.firstWhereOrNull((p) => p.productId == productId);
+        // Find product in cartProducts, items list, or allProductsCache
+        final product =
+            cartProducts[productId] ??
+            items.firstWhereOrNull((p) => p.productId == productId) ??
+            allProductsCache[productId];
         if (product != null) {
           // Use pbPrice for PB branches, internalPrice for internal branches, basePrice otherwise
           final price =
@@ -348,8 +384,11 @@ class ProductController extends GetxController {
         final productId = entry.key;
         final quantity = cartQuantities[productId] ?? 0.0;
 
-        // Find product in items list
-        final product = items.firstWhereOrNull((p) => p.productId == productId);
+        // Find product in cartProducts, items list, or allProductsCache
+        final product =
+            cartProducts[productId] ??
+            items.firstWhereOrNull((p) => p.productId == productId) ??
+            allProductsCache[productId];
         if (product != null) {
           // Use pbPrice for PB branches, internalPrice for internal branches, basePrice otherwise
           final price =
